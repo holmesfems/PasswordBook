@@ -6,11 +6,11 @@ Remember your password on virous sites
 
 This tool is to remember your passwords on virous sites, and keeping your passwords Encrypted.
 
-#Download
+# Download
 
 Please download from [Release Page](https://github.com/holmesfems/PasswordBook/releases)
 
-#Requirement
+# Requirement
 
 * libreadline
 * c++11 (For regex support)
@@ -18,7 +18,7 @@ Please download from [Release Page](https://github.com/holmesfems/PasswordBook/r
 * sqlite (Using database to save your password)
 * cmake (optional, if you want to build with cmake)
 
-#Installation
+# Installation
 
 Here are two methods: Calling `make` directly or using [cmake](https://cmake.org/runningcmake/).
 
@@ -40,18 +40,18 @@ make
 sudo make install
 ```
 
-#Usage
+# Usage
 
-#Changelog
+# Changelog
 
-#Licence
+# Licence
 
-Copyright (c) 2016-2017 holmesfems
+Copyright (c) 2017 holmesfems
 
 Released under MIT license
 
 (http://opensource.org/licenses/mit-license.php)
 
-#Author
+# Author
 
 [holmesfems](https://github.com/holmesfems)
