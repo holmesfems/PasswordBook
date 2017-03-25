@@ -1,6 +1,6 @@
 PasswordBook
 ====
-Remember your password on virous sites
+Remember your password on various sites
 
 # Description
 

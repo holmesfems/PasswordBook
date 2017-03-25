@@ -30,8 +30,11 @@ namespace SaveConfig
             int save(const std::string& filename);
             std::string getValueByKey(const std::string& key);
             std::string getValueByIndex(int index);
+            std::string getKeyByIndex(int index);
             int getIndexByKey(const std::string& key);
-            int deleteByIndex(int index);
+            int setValueByKey(const std::string& value,const std::string& key);
+            int setValueByIndex(const std::string& value,int index);
+            //int deleteByIndex(int index);
         private:
             std::vector<ConfigItem> _configList;
     };

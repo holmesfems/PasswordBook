@@ -29,10 +29,10 @@ namespace StringTool
         return result;
     }
 
-    std::vector<std::string> strsep(const std::string &str,int locate,int length)
+    std::vector<std::string> strSep(const std::string &str,size_t locate,size_t length)
     {
     #ifdef DEBUG
-        std::cout << "calling strsep(" << str << "," << locate << "," << length << ")" << std::endl;
+        std::cout << "calling strSep(" << str << "," << locate << "," << length << ")" << std::endl;
     #endif
         std::vector<std::string> result;
         result.push_back(str.substr(0,locate));
@@ -41,6 +41,15 @@ namespace StringTool
         std::cout <<"result:" << result[0] << " | " << result[1] << std::endl;
     #endif
         return result;
+    }
+
+    std::string strTrim(const std::string& str,const std::string trim)
+    {
+        size_t start = str.find_first_not_of(trim);
+        if(start == std::string::npos)
+            return "";
+        size_t last = str.find_last_not_of(trim);
+        return str.substr(start,last-start+1);
     }
 
     double convertToDouble(const std::string &str)
