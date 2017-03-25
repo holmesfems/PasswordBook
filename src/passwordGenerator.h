@@ -8,7 +8,8 @@
 
 #ifndef _PASSWORDGENERATOR_H
 #define _PASSWORDGENERATOR_H
-#include<string>
+#include <string>
+#include "randomTool.h"
 
 namespace PasswordGenerator
 {
@@ -16,21 +17,27 @@ namespace PasswordGenerator
     {
         public:
             PasswordGenerator();
-            ~PasswordGenerator();
+            ~PasswordGenerator(){};
             int setPwdList(const string& pwdList);
-            int addPwdList(const string& pwdList);
+            int pushPwdList(const string& pwdList);
+            int clearPwdList();
+            inline std::string getPwdList(){return _pwdList;}
             int setPwdLength(int pwdLength);
+            inline int getPwdLength(){return _pwdLength;}
             std::string generate();
+            int saveToFile(const std::string& filename);
+            int loadFromFile(const std::string& filename);
+            //std::string generateByExpr(const std::string& expr);
 
         private:
             int _pwdLength;
             std::string _pwdList;
-            
+
     };
-    extern const string bigAlphabet;
-    extern const string smallAlphabet;
-    extern const string numeric;
-    extern const string signs;
+    extern const std::string bigAlphabet;
+    extern const std::string smallAlphabet;
+    extern const std::string numeric;
+    extern const std::string signs;
 
 }
 
