@@ -1,3 +1,6 @@
+# Swap files of vim
+.*.swp
+
 # Compiled Object files
 *.slo
 *.lo
