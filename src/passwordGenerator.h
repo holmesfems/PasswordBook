@@ -25,8 +25,8 @@ namespace PasswordGenerator
             int setPwdLength(int pwdLength);
             inline int getPwdLength(){return _pwdLength;}
             std::string generate();
-            int saveToFile(const std::string& filename);
-            int loadFromFile(const std::string& filename);
+            int save(const std::string& filename);
+            int load(const std::string& filename);
             //std::string generateByExpr(const std::string& expr);
 
         private:

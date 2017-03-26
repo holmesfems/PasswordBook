@@ -11,6 +11,8 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <boost/filesystem.hpp>
+
 namespace SaveConfig
 {
     ConfigItem::ConfigItem()
@@ -73,8 +75,19 @@ namespace SaveConfig
         ifs.open(filename);
         if(!(ifs.is_open()))
         {
-            std::cerr << "Config:Can't open file:" << filename << std::endl;
-            return -1;
+            std::ofstream ofs2;
+            ofs2.open(filename,std::ofstream::trunc);
+            if(!(ofs2.is_open()))
+            {
+                std::cerr << "Config:Can't create file:" << filename << std::endl;
+                return -1;
+            }
+            for(auto item:_configList)
+            {
+                ofs2 << item.key << "\t=\t" << item.value << std::endl;
+            }
+            ofs2.close();
+            return 0;
         }
         std::string swapFile=filename;
         swapFile+=".swp";
@@ -128,6 +141,21 @@ namespace SaveConfig
             if(!(written[i]))
                 ofs << getKeyByIndex(i) << "\t=\t" << getValueByIndex(i) << std::endl;
         }
+        ifs.close();
+        ofs.close();
+        const boost::filesystem::path path(filename.c_str());
+        const boost::filesystem::path path2(swapFile.c_str());
+        try
+        {
+            boost::filesystem::remove(path);
+            boost::filesystem::rename(path2,path);
+        }
+        catch(boost::filesystem::error& ex)
+        {
+            std::cerr << "Config:Can't overwrite the config," << ex.what() << std::endl;
+            return -4;
+        }
+        return 0;
     }
 
     std::string Config::getValueByKey(const std::string& key)
@@ -137,11 +165,15 @@ namespace SaveConfig
 
     std::string Config::getValueByIndex(int index)
     {
+        if(index < 0 || index >= _configList.size())
+            return "";
         return _configList[index].value;
     }
 
     std::string getKeyByIndex(int index)
     {
+        if(index < 0 || index >= _configList.size())
+            return "";
         return _configList[index].key;
     }
 

@@ -7,8 +7,11 @@
  */
 
 #include "passwordGenerator.h"
+#include "saveConfig.h"
+#include "stringTool.h"
 #include <sstream>
 #include <fstream>
+
 namespace PasswordGenerator
 {
     const std::string bigAlphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -66,36 +69,43 @@ namespace PasswordGenerator
         return oss.str();
     }
 
-    int PasswordGenerator::saveToFile(const std::string& filename)
+    const std::string key1="pwdLength";
+    const std::string key2="pwdList";
+
+    int PasswordGenerator::save(const std::string& filename)
     {
-        ofstream ofs;
-        ofs.open(filename,std::ofstream::trunc);
-        if(!ofs.is_open())
-        {
-            std::cerr << "Can't create file:" << filename << std::endl;
-            return -1;
-        }
-        ofs << "pwdLength=" << _pwdLength << std::endl;
-        ofs << R"("pwdList=\")" << _pwdList << R"(\")" << std::endl;
-        ofs.close();
-        return 0;
+        SaveConfig::Config config;
+        std::string val1=StringTool::convertFrom<int>(_pwdLength);
+        std::string val2=_pwdList;
+        config.setValueByKey(val1,key1);
+        config.setValueByKey(val2,key2);
+        return config.save(filename);
     }
 
-    int PasswordGenerator::loadFromFile(const std::string& filename)
+    int PasswordGenerator::load(const std::string& filename)
     {
-        ifstream ifs;
-        ifs.open(filename);
-        if(!ifs.is_open())
+        SaveConfig::Config config;
+        int ret;
+        if((ret=config.load(filename))!=0)
         {
-            std::cerr << "Can't open file:" << filename << std::endl;
+            std::cerr << "Error occured while loading config file" << std::endl;
+            return ret;
+        }
+        std::string val1=config.getValueByKey(key1);
+        if(val1 == "")
+        {
+            std::cerr << "No value of key:" << key1;
             return -1;
         }
-        string cmd;
-        while(!ifs.eof())
+        std::string val2=config.getValueByKey(key2);
+        if(val2 == "")
         {
-            std::getline(ifs,cmd);
-
+            std::cerr << "No value of key:" << key2;
+            return -1;
         }
+        _pwdLength=StringTool::convertTo<int>(val1);
+        _pwdList=val2;
+        return 0;
     }
 
 }

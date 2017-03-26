@@ -52,21 +52,26 @@ namespace StringTool
         return str.substr(start,last-start+1);
     }
 
-    double convertToDouble(const std::string &str)
+    template <typename T>
+        std::string convertFrom(T from)
     {
-        std::istringstream iss;
-        iss.str(str);
-        double res;
-        iss >> res;
-        return res;
+        std::ostringstream oss;
+        oss << from;
+        return oss.str();
     }
 
-    int convertToInt(const std::string &str)
+    template <typename T>
+        T convertTo(const std::string& str)
     {
         std::istringstream iss;
         iss.str(str);
-        int res;
-        iss >> res;
-        return res;
+        T ret;
+        iss >> ret;
+        return ret;
     }
+
+    template convertFrom<int>;
+    template convertFrom<double>;
+    template convertTo<int>;
+    template convertTo<double>;
 }

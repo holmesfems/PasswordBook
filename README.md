@@ -16,6 +16,7 @@ Please download from [Release Page](https://github.com/holmesfems/PasswordBook/r
 * c++11 (For regex support)
 * openssl (Encryption support)
 * sqlite (Using database to save your password)
+* boost (Used to do some operation on files to save some configs)
 * cmake (optional, if you want to build with cmake)
 
 # Installation
