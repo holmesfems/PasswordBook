@@ -19,7 +19,7 @@ CFLAGS   = -std=c++11 -Wall -I.
 
 LINKER   = $(CC) -o
 # linking flags here
-LFLAGS   = -Wall -I. -lm -lreadline
+LFLAGS   = -Wall -I. -lm -lreadline -lboost_system -lboost_filesystem
 
 # change these to proper directories where each file should be
 SRCDIR   = src

@@ -1,4 +1,5 @@
 #include "stringTool.h"
+#include "stdlib.h"
 #include <sstream>
 //#define DEBUG
 namespace StringTool
@@ -52,26 +53,68 @@ namespace StringTool
         return str.substr(start,last-start+1);
     }
 
-    template <typename T>
-        std::string convertFrom(T from)
+    char binToHexChar(unsigned char c)
     {
+        if(c < 0 || c>0x0F)
+            return 0;
+        if(c >=0 || c< 0x0A)
+            return 0x30+c;
+        else
+            return 0x37+c;
+    }
+
+    std::string hex(char c)
+    {
+        unsigned char uc=(unsigned char)(c);
         std::ostringstream oss;
-        oss << from;
+        unsigned char upper=(uc & (unsigned char)(0xF0)) >> 4;
+        unsigned char lower=(uc & (unsigned char)(0x0F));
+        oss << binToHexChar(upper) << binToHexChar(lower);
         return oss.str();
     }
 
-    template <typename T>
-        T convertTo(const std::string& str)
+    std::string binToStr(const char* binary,int length)
     {
-        std::istringstream iss;
-        iss.str(str);
-        T ret;
-        iss >> ret;
-        return ret;
+        int i;
+        std::ostringstream oss;
+        for(i=0;i<length;i++)
+        {
+            oss << hex(binary[i]);
+        }
+        return oss.str();
     }
 
-    template convertFrom<int>;
-    template convertFrom<double>;
-    template convertTo<int>;
-    template convertTo<double>;
+    unsigned char hexCharToBin(char c)
+    {
+        if(c >= 0x30 && c <= 0x39)
+            return c-0x30;
+        if(c >= 0x41 && c <= 0x46)
+            return c-0x37;
+        if(c >= 0x61 && c <= 0x66)
+            return c-0x57;
+        return (unsigned char)(0xff);
+    }
+
+    const char* strToBin(const std::string& str,int *length)
+    {
+        const char* cstr=str.c_str();
+        int maxi=str.length();
+        if(maxi%2!=0) return NULL;
+        char* ret=(char *)malloc((maxi/2)*sizeof(char));
+        int i;
+        for(i=0;i<maxi;i+=2)
+        {
+            unsigned char ucu = hexCharToBin(cstr[i]);
+            unsigned char ucl = hexCharToBin(cstr[i+1]);
+            if(ucu == 0xff || ucl == 0xff)
+            {
+                free(ret);
+                return NULL;
+            }
+            unsigned char uc = (ucu << 4) | ucl;
+            ret[i/2]=char(uc);
+        }
+        if(length!=NULL) (*length)=maxi/2;
+        return ret;
+    }
 }

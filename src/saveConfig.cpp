@@ -102,7 +102,7 @@ namespace SaveConfig
         char written[totalWrite];
         int i;
         for(i=0;i<totalWrite;i++)
-            written=0;
+            written[i]=0;
         while(!(ifs.eof()))
         {
             std::string line;
@@ -124,7 +124,7 @@ namespace SaveConfig
             std::vector<std::string> split=StringTool::strSep(trimline,equal,1);
             std::string key=StringTool::strTrim(split[0]);
             int index;
-            if((index=getIndexByKey)<0)
+            if((index=getIndexByKey(key))<0)
             {
                 ofs << line << std::endl;
             }
@@ -150,7 +150,7 @@ namespace SaveConfig
             boost::filesystem::remove(path);
             boost::filesystem::rename(path2,path);
         }
-        catch(boost::filesystem::error& ex)
+        catch(boost::filesystem::filesystem_error& ex)
         {
             std::cerr << "Config:Can't overwrite the config," << ex.what() << std::endl;
             return -4;
@@ -170,14 +170,14 @@ namespace SaveConfig
         return _configList[index].value;
     }
 
-    std::string getKeyByIndex(int index)
+    std::string Config::getKeyByIndex(int index)
     {
         if(index < 0 || index >= _configList.size())
             return "";
         return _configList[index].key;
     }
 
-    int getIndexByKey(const std::string& key)
+    int Config::getIndexByKey(const std::string& key)
     {
         int i,maxi=_configList.size();
         for(i=0;i<maxi;i++)
@@ -188,7 +188,7 @@ namespace SaveConfig
         return -1;
     }
 
-    int setValueByKey(const std::string& value,const std::string& key)
+    int Config::setValueByKey(const std::string& value,const std::string& key)
     {
         int ret;
         if((ret=setValueByIndex(value,getIndexByKey(key)))<0)
@@ -198,7 +198,7 @@ namespace SaveConfig
         return ret;
     }
 
-    int setValueByIndex(const std::string& value,int index)
+    int Config::setValueByIndex(const std::string& value,int index)
     {
         if(index < 0 || index >= _configList.size())
         {

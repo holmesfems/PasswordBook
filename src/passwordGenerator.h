@@ -18,8 +18,8 @@ namespace PasswordGenerator
         public:
             PasswordGenerator();
             ~PasswordGenerator(){};
-            int setPwdList(const string& pwdList);
-            int pushPwdList(const string& pwdList);
+            int setPwdList(const std::string& pwdList);
+            int pushPwdList(const std::string& pwdList);
             int clearPwdList();
             inline std::string getPwdList(){return _pwdList;}
             int setPwdLength(int pwdLength);

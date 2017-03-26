@@ -16,7 +16,7 @@ namespace SaveConfig
     {
         public:
             ConfigItem();
-            ConfigItem(const std::string& key,std::string value);
+            ConfigItem(const std::string& key,const std::string& value);
             std::string key;
             std::string value;
     };

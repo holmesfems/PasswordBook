@@ -11,16 +11,16 @@
 #include "stringTool.h"
 #include <sstream>
 #include <fstream>
-
+#include <iostream>
 namespace PasswordGenerator
 {
     const std::string bigAlphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const std::string smallAlphabet="abcdefghijklmnopqrstuvwxyz";
     const std::string numeric="0123456789";
     const std::string signs=R"(!@#$%^&*()_=+*-`{}[]\ |'";:/?.>,<)";
-    std::string strConnect(const string& str1,const string& str2)
+    std::string strConnect(const std::string& str1,const std::string& str2)
     {
-        ostringstream oss;
+        std::ostringstream oss;
         oss << str1 << str2;
         return oss.str();
     }
@@ -31,13 +31,13 @@ namespace PasswordGenerator
         _pwdList=strConnect(strConnect(bigAlphabet,smallAlphabet),numeric);
     }
 
-    int PasswordGenerator::setPwdList(const string& pwdList)
+    int PasswordGenerator::setPwdList(const std::string& pwdList)
     {
         _pwdList=pwdList;
         return 0;
     }
 
-    int PasswordGenerator::pushPwdList(const string& pwdList)
+    int PasswordGenerator::pushPwdList(const std::string& pwdList)
     {
         _pwdList=strConnect(_pwdList,pwdList);
         return 0;
@@ -58,9 +58,9 @@ namespace PasswordGenerator
     std::string PasswordGenerator::generate()
     {
         int i;
-        ostringstream oss;
+        std::ostringstream oss;
         int selectLength=_pwdList.length();
-        char *pwdListCstr=_pwdList.c_str();
+        const char *pwdListCstr=_pwdList.c_str();
         for(i=0;i<_pwdLength;i++)
         {
             int locale=int(RandomTool::zoURand()*selectLength);

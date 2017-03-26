@@ -1,33 +1,22 @@
-#include"stdio.h"
-#include<iostream>
-#include<string>
-#include<stdio.h>
-#include<readline/readline.h>
-#include<readline/history.h>
-#include<stdlib.h>
-#include<sstream>
-using namespace BasicNumeric;
+#include "stdio.h"
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <stdlib.h>
+#include <sstream>
+#include "cmdSeparator.h"
+#include "simpleColor.h"
 
 int main()
 {
     std::string cmd;
-    initialize();
     using_history();
     read_history(NULL);
     int count=0;
     std::ostringstream os;
-    std::string homedir;
-    std::string rcdir;
-    char* hdcp=getenv("HOME");
-    if(hdcp==NULL)
-        readScript("consts.txt");
-    else
-    {
-        homedir=hdcp;
-        rcdir=homedir+"/.bnrc";
-        if(readScript(rcdir))
-            readScript("consts.txt");
-    }
+    CmdSeparator::CmdSeparator cmdsep;
     while(1)
     {
         count++;
@@ -43,7 +32,7 @@ int main()
         }
         cmd=text;
         std::cout << COLOR_GREEN << "Out[" << count<< "]:" << COLOR_NORMAL;
-        if(!(seperateCmd(cmd)))
+        if(!(cmdsep.exec(cmd)))
         {
             free(text);
             break;
