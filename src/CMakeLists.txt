@@ -1,15 +1,16 @@
-add_executable ( basicNumeric
-	basicNumeric.cpp  basicNumeric.h
-	regextool.cpp  regextool.h
-	stringTool.cpp  stringTool.h
+add_executable ( pbook
 	main.cpp
+	cmdSeparator.cpp
+	passwordGenerator.cpp
+	randomTool.cpp
+	regextool.cpp
+	saveConfig.cpp
+	stringTool.cpp
 	)
 
-# TODO check if compiler support c++11 standard
-set_property (TARGET basicNumeric PROPERTY CXX_STANDARD 11)
+include_directories ( pbook ${Boost_INCLUDE_DIRS} )
+target_link_libraries ( pbook m ${LIB_READLINE} ${Boost_LIBRARIES})
 
-target_link_libraries ( basicNumeric ${LIB_READLINE} )
-
-install (TARGETS basicNumeric
+install (TARGETS pbook
 	RUNTIME DESTINATION  bin
 	)

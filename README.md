@@ -12,27 +12,16 @@ Please download from [Release Page](https://github.com/holmesfems/PasswordBook/r
 
 # Requirement
 
+* cmake (building from source)
 * libreadline
 * c++11 (For regex support)
 * openssl (Encryption support)
 * sqlite (Using database to save your password)
 * boost (Used to do some operation on files to save some configs)
-* cmake (optional, if you want to build with cmake)
 
 # Installation
 
-Here are two methods: Calling `make` directly or using [cmake](https://cmake.org/runningcmake/).
-
-Note that we prefer using clang++ than g++
-
-Method 1 - Using 'make':
-
-```sh
-make
-sudo make install
-```
-
-Method 2 - Using cmake:
+(Note that we prefer using clang++ than g++)
 
 ```sh
 mkdir build && cd build
