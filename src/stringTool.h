@@ -14,6 +14,7 @@ namespace StringTool
 
     std::string binToStr(const char* binary,int length);
     const char* strToBin(const std::string& str,int *length=NULL);
+    std::string bracket(const std::string& str);
 }
 #include "stringTool_util.h"
 #endif

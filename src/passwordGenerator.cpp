@@ -12,6 +12,8 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include "regextool.h"
+
 namespace PasswordGenerator
 {
     const std::string bigAlphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -78,7 +80,7 @@ namespace PasswordGenerator
         std::string val1=StringTool::convertFrom<int>(_pwdLength);
         std::string val2=_pwdList;
         config.setValueByKey(val1,key1);
-        config.setValueByKey(val2,key2);
+        config.setValueByKey(StringTool::bracket(val2),key2);
         return config.save(filename);
     }
 
@@ -104,7 +106,17 @@ namespace PasswordGenerator
             return -1;
         }
         _pwdLength=StringTool::convertTo<int>(val1);
-        _pwdList=val2;
+        std::regex listval(R"(".*")");
+        std::vector<std::smatch*> listmatch=regex_searchOne(listval,val2);
+        if(listmatch.size()==0)
+        {
+            std::cerr << "Wrong type value:" << val2;
+            return -2;
+        }
+        std::string rval2=listmatch[0]->str();
+        int rval2length=rval2.length();
+        _pwdList=rval2.substr(1,rval2length-2);
+        clearSmatch(listmatch);
         return 0;
     }
 

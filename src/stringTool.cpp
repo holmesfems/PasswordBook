@@ -117,4 +117,13 @@ namespace StringTool
         if(length!=NULL) (*length)=maxi/2;
         return ret;
     }
+
+    std::string bracket(const std::string& str)
+    {
+        std::ostringstream oss;
+        oss << "\"";
+        oss << str;
+        oss << "\"";
+        return oss.str();
+    }
 }
