@@ -12,11 +12,10 @@ namespace SslTool
 {
     class SslTool
     {
-        public:
-            SslTool();
-            ~SslTool();
-            
+      public:
+        SslTool();
+        ~SslTool();
     };
 }
 
-#endif // _SSLTOOL_H
+#endif  // _SSLTOOL_H

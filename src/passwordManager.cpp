@@ -11,15 +11,6 @@
 
 namespace PasswordManager
 {
-    PasswordManager::PasswordManager()
-    {
-        conn=NULL;
-    }
-
-    int PasswordManager::openDB(const std::string& filename)
-    {
-
-
-    }
+    PasswordManager::PasswordManager() { conn = NULL; }
+    int PasswordManager::openDB(const std::string &filename) {}
 }
-

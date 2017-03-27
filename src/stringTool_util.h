@@ -7,7 +7,7 @@
 namespace StringTool
 {
     template <typename T>
-        std::string convertFrom(T from)
+    std::string convertFrom(T from)
     {
         std::ostringstream oss;
         oss << from;
@@ -15,7 +15,7 @@ namespace StringTool
     }
 
     template <typename T>
-        T convertTo(const std::string& str)
+    T convertTo(const std::string& str)
     {
         std::istringstream iss;
         iss.str(str);
@@ -24,5 +24,5 @@ namespace StringTool
         return ret;
     }
 }
-#endif //_STRINGTOOL_UTIL_H
-#endif //_STRINGTOOL_H
+#endif  //_STRINGTOOL_UTIL_H
+#endif  //_STRINGTOOL_H
