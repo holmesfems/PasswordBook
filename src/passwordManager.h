@@ -18,8 +18,9 @@ namespace PasswordManager
     {
         public:
             PasswordManager();
-            ~PasswordManager();
+            //~PasswordManager();
             int openDB(const std::string& filename);
+            int dbinit();
             std::string searchByDomain(const std::string& domain);
             std::string searchByIndex(int index);
             int addPasswd(const std::string& filename,const std::string& domain);
@@ -27,7 +28,6 @@ namespace PasswordManager
             int deleteByIndex(int index);
             std::vector<std::string> getDomainLists();
             std::string getDomainByRegex(const std::string& regexStr);
-
         private:
             sqlite3 *conn;
     };
