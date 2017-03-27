@@ -11,6 +11,10 @@
 
 namespace RandomTool
 {
+    //! A function to get a universed random number in [0,1)
+    /*!
+      \return The universed random number in [0,1)
+    */
     double zoURand();
 }
 #endif // _RANDOMTOOL_H

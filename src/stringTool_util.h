@@ -1,6 +1,8 @@
-#ifndef _STRINGTOOL_UTIL
-#define _STRINGTOOL_UTIL
-//#define DEBUG
+//! this is a util file of "StringTool.h",don't include this directly
+
+#ifdef _STRINGTOOL_H
+#ifndef _STRINGTOOL_UTIL_H
+#define _STRINGTOOL_UTIL_H
 #include <sstream>
 namespace StringTool
 {
@@ -22,4 +24,5 @@ namespace StringTool
         return ret;
     }
 }
-#endif //_STRINGTOOL_UTIL
+#endif //_STRINGTOOL_UTIL_H
+#endif //_STRINGTOOL_H
