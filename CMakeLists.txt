@@ -12,6 +12,8 @@ find_package ( Boost
 	COMPONENTS filesystem system
 	)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
+
 # \ref http://stackoverflow.com/questions/10851247/how-to-activate-c-11-in-cmake
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
