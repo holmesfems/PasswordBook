@@ -48,3 +48,5 @@ Released under MIT license
 # Author
 
 [holmesfems](https://github.com/holmesfems)
+
+[jerryjia](https://github.com/jerryjiahaha)
