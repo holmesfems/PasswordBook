@@ -73,4 +73,4 @@ Difference between B and C:
 * Hints() of B is Hints(domain), but in C is Hints(PWD1, PWD.OUTPUT). They use different param
 * Hints() is related to Gen in C.
 * PWD.OUTPUT use Gen() by B. PWD.OUTPUT is predfined by GenExtra() in C.
-* Users must check P.BOOK in C
+* User can set Hints(domain) in B, user can remember password indirectly (remember Hints and Gen). User can remember password directly in C.
