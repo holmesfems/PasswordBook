@@ -1,3 +1,4 @@
+Our need: different passwords for different domain, save password infomation, but others cannot get passwords from this information
 ## 约定
 * **PWDN**: global password remembered by user (N: 0,1,...)
 * **P.BOOK**: PasswordBook that save passwords of different domain for user
@@ -40,6 +41,13 @@ PWD0 -> P.BOOK
 PWD.OUTPUT := Gen(PWD1, P.BOOK(domain))
 ```
 
+example:
+```
+let Hints(domain) := domain
+get PWD.OUTPUT = Gen(PWD1, P.BOOK(domain)) = Gen(PWD1, Hints(domain)) = Gen(PWD1, domain)
+= ~domain X PWD1
+```
+
 pros:
 
 * P.BOOK is not such necessary ( If we remember Hints(domain) and Gen )
@@ -50,3 +58,19 @@ cons:
 * Gen() is hard to design ( otherwise PWD.OUTPUT => P.BOOK )
 * If we know one of PWD.OUTPUT and P.BOOK, we may get PWD1 then all other PWD.OUTPUT
 
+### Plan C
+```
+save:
+PWD.OUTPUT := GenExtra()
+P.BOOK(domain) := Hints(PWD1, PWD.OUTPUT)
+load:
+PWD0 -> P.BOOK
+PWD.OUTPUT := Gen(PWD1, P.BOOK(domain))
+So: Gen() is inverse function of Hints() (They are related)
+```
+
+Difference between B and C:
+* Hints() of B is Hints(domain), but in C is Hints(PWD1, PWD.OUTPUT). They use different param
+* Hints() is related to Gen in C.
+* PWD.OUTPUT use Gen() by B. PWD.OUTPUT is predfined by GenExtra() in C.
+* Users must check P.BOOK in C
