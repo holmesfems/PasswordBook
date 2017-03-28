@@ -5,6 +5,7 @@ Remember your password on various sites
 # Description
 
 This tool is to remember your passwords on virous sites, and keeping your passwords Encrypted.
+The encryption method is using [Blowfish algorithm](https://www.schneier.com/academic/blowfish/).
 
 # Download
 
