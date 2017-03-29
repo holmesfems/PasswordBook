@@ -15,6 +15,7 @@ namespace SslTool
       public:
         SslTool();
         ~SslTool();
+
     };
 }
 
