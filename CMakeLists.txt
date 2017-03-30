@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.0.2)
 
 project (PasswordBook)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_library ( LIB_READLINE
 	NAMES readline libreadline
@@ -12,11 +12,11 @@ find_package ( Boost
 	COMPONENTS filesystem system
 	)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option (DEBUG "debug output" OFF)
 if (DEBUG)
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -DDEBUG")
 endif()
 
 # \ref http://stackoverflow.com/questions/10851247/how-to-activate-c-11-in-cmake
@@ -32,5 +32,15 @@ else()
 endif()
 
 add_subdirectory (src)
+
+option (enable_test "enable tests" ON)
+if (enable_test)
+	enable_testing()
+	find_package(GTest REQUIRED)
+	add_subdirectory (test)
+endif()
+
 add_subdirectory (doc)
+
+
 

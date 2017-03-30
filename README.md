@@ -1,5 +1,5 @@
 PasswordBook
-====
+============
 Remember your password on various sites
 
 # Description
@@ -14,12 +14,14 @@ Please download from [Release Page](https://github.com/holmesfems/PasswordBook/r
 # Requirement
 
 * cmake (building from source)
+* pkgconfig (to find library)
 * c++11 (For regex support)
 * openssl (Encryption support)
 * sqlite (Using database to save your password)
 * boost (Used to do some operation on files to save some configs)
 * libreadline
-* doxygen (If you want to build doc)
+* [gtest](https://github.com/google/googletest) (If you want to run tests)
+* [doxygen](https://github.com/doxygen/doxygen) (If you want to build doc)
 
 # Installation
 
