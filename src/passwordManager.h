@@ -14,15 +14,16 @@
 #include <vector>
 namespace PasswordManager
 {
+    typedef std::vector<uint8_t> bytes;
     class PasswordManager
     {
       public:
         //~PasswordManager();
-        virtual int openDB(const std::string &filename) = 0;
-        virtual int showIndexByDomain(const std::string &domain) = 0;
-        virtual std::string searchByIndex(int index) = 0;
-        virtual int addPasswd(const std::string &passwdStr, const std::string &domain) = 0;
-        virtual int deleteByIndex(int index) = 0;
+        virtual int32_t openDB(const std::string &filename) = 0;
+        virtual int32_t showIndexByDomain(const std::string &domain) = 0;
+        virtual bytes searchByIndex(int32_t index) = 0;
+        virtual int32_t addPasswd(bytes passwd, const std::string &domain) = 0;
+        virtual int32_t deleteByIndex(int32_t index) = 0;
         virtual std::vector<std::string> getDomainLists() = 0;
     };
 
@@ -30,17 +31,17 @@ namespace PasswordManager
     {
       public:
         PasswordManager_SQLite3();
-        int openDB(const std::string &filename);
-        int showIndexByDomain(const std::string &domain);
-        std::string searchByIndex(int index);
-        int addPasswd(const std::string &passwdStr, const std::string &domain);
-        int deleteByIndex(int index);
+        int32_t openDB(const std::string &filename);
+        int32_t showIndexByDomain(const std::string &domain);
+        bytes searchByIndex(int32_t index);
+        int32_t addPasswd(bytes passwd, const std::string &domain);
+        int32_t deleteByIndex(int32_t index);
         std::vector<std::string> getDomainLists();
 
       private:
-        int _initDB();
-        // int _checkDB();
-        char **_getQuery(const char *sqlRequest, int *pnRow = NULL, int *qnRow = NULL);
+        int32_t _initDB();
+        // int32_t _checkDB();
+        char **_getQuery(const char *sqlRequest, int32_t *pnRow = NULL, int32_t *qnRow = NULL);
         sqlite3 *_conn;
         std::ostream *_os;
     };
