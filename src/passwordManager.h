@@ -23,6 +23,7 @@ namespace PasswordManager
         int showIndexByDomain(const std::string& domain);
         std::string searchByIndex(int index);
         int addPasswd(const std::string& passwdStr, const std::string& domain);
+        int changePasswd(const std::string& passwdStr,int index);
         int deleteByIndex(int index);
         std::vector<std::string> getDomainLists();
 

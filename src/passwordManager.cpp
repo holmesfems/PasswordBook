@@ -9,6 +9,7 @@
 #include "passwordManager.h"
 #include <boost/filesystem.hpp>
 #include <sstream>
+#include "stringTool.h"
 
 namespace PasswordManager
 {
@@ -87,6 +88,86 @@ namespace PasswordManager
                 (*_os) << std::endl;
             }
         }
+        sqlite3_free_table(query);
+        query=NULL;
         return 0;
+    } //showIndexByDomain()
+
+    std::string PasswordManager::searchByIndex(int index)
+    {
+        int pnRow,pnCol;
+        std::ostringstream sql;
+        sql << R"(SELECT index,domain,pwdoutput FROM table1 WHERE index=)" << index;
+        char **query = _getQuery(sql.str().c_str(),&pnRow,&pnCol);
+        if(query == NULL){
+            (*_os) << "An error occured while searching index: " << index << std::endl;
+             return "";
+        }
+        std::string ret="";
+        if(pnRow == 0){
+            (*_os) << "No one is hit" << std::endl;
+        }else{
+            (*_os) << "Hit " << pnRow << " Results:" << std::endl;
+            int i,j;
+            for(i=0;i<=pnRow;i++)
+            {
+                for(j=0;j<pnCol;j++)
+                {
+                    if(j==2) continue;
+                    if(j>0) (*_os) << '\t';
+                    (*_os) << query[i*pnCol+j];
+                }
+                (*_os) << std::endl;
+            }
+            ret = std::string(query[5]);
+        }
+        sqlite3_free_table(query);
+        query=NULL;
+        return ret;
     }
+
+    int PasswordManager::addPasswd(const std::string &passwdStr,const std::string &domain)
+    {
+        int pnRow,pnCol;
+        std::ostringstream sql;
+        sql << R"(SELECT index,domain FROM table1 WHERE domain = ')" << domain << R"(')";
+        char **query = _getQuery(sql.str().c_str(),&pnRow,&pnCol);
+        if(query == NULL){
+            (*_os) << "An error occured while searching domain: " << domain << std::endl;
+             return -1;
+        }
+        if(pnRow == 0){
+            sql.str("");
+            sql << R"(BEGIN TRANSACTION;)";
+            sql << R"(INSERT INTO table1 (domain,pwdoutput) VALUES(')" << domain << R"(',')"
+                << passwdStr << R"(');)";
+            sql << R"(COMMIT TRANSACTION;)";
+            char *errMsg=NULL;
+            int err=sqlite3_exec(_conn,sql.str().c_str(),NULL,NULL,&errMsg);
+            if(err!=SQLITE_OK)
+            {
+                (*_os) << errMsg << std::endl;
+                return -1;
+            }
+
+        }else{
+            (*_os) << "Hit " << pnRow << " Results:" << std::endl;
+            int i,j;
+            for(i=0;i<=pnRow;i++)
+            {
+                for(j=0;j<pnCol;j++)
+                {
+                    if(j>0) (*_os) << '\t';
+                    (*_os) << query[i*pnCol+j];
+                }
+                (*_os) << std::endl;
+            }
+        }
+        sqlite3_free_table(query);
+        query=NULL;
+        return 0;
+
+    }
+
+
 }
