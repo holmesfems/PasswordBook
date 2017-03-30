@@ -10,7 +10,7 @@ namespace StringTool
      * \param delim The delim sign
      * \return The vector includes all items that splitted not including the delim sign.
      */
-    std::vector<std::string> strSplit(const std::string& s, const std::string& delim);
+    std::vector<std::string> strSplit(const std::string &s, const std::string &delim);
 
     //! The function to seperate a string from a certain locate
     /*!
@@ -19,7 +19,7 @@ namespace StringTool
      * \param length The length of seperating sign
      * \return The vector contains two items of seperating result
      */
-    std::vector<std::string> strSep(const std::string& str, size_t locate, size_t length);
+    std::vector<std::string> strSep(const std::string &str, size_t locate, size_t length);
 
     //! The function to trim a string
     /*!
@@ -27,7 +27,7 @@ namespace StringTool
      * \param trim The trimming sign
      * \return A new string which is the result of trimming
      */
-    std::string strTrim(const std::string& str, const std::string trim = "\n\t ");
+    std::string strTrim(const std::string &str, const std::string trim = "\n\t ");
 
     //! The convert function from type T to std::string
     template <class T>
@@ -35,7 +35,7 @@ namespace StringTool
 
     //! The convert function from std::string to type T
     template <class T>
-    T convertTo(const std::string& str);
+    T convertTo(const std::string &str);
 
     //! The convert function from binary data to a binary-expressing string
     /*!
@@ -44,7 +44,7 @@ namespace StringTool
      * \param length The length of "binary"
      * \return A new string which is the result of convert
      */
-    std::string binToStr(const char* binary, int length);
+    std::string binToStr(const char *binary, int length);
 
     //! The convert function from a binary-expressing string to binary data
     /*!
@@ -54,7 +54,7 @@ namespace StringTool
      * \param length The length of the data will be recorded to this pointer
      * \return A new char siries which is the result of convert
      */
-    const char* strToBin(const std::string& str, int* length = NULL);
+    const char *strToBin(const std::string &str, int *length = NULL);
 
     //! The function that add a bracket to a string
     /*!
@@ -62,7 +62,7 @@ namespace StringTool
      * \param str The string to be added a bracket
      * \return A new string which is the result
      */
-    std::string bracket(const std::string& str);
+    std::string bracket(const std::string &str);
 }
 #include "stringTool_util.h"
 #endif

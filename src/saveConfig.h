@@ -20,7 +20,7 @@ namespace SaveConfig
         ConfigItem();
 
         //! Constructor,initializing key and value
-        ConfigItem(const std::string& key, const std::string& value);
+        ConfigItem(const std::string &key, const std::string &value);
 
         //! key of the item
         std::string key;
@@ -44,13 +44,13 @@ namespace SaveConfig
         int pushItem(ConfigItem item);
 
         //! Load config from a certain file
-        int load(const std::string& filename);
+        int load(const std::string &filename);
 
         //! Save config to a certain file
-        int save(const std::string& filename);
+        int save(const std::string &filename);
 
         //! Get the value of config by key
-        std::string getValueByKey(const std::string& key);
+        std::string getValueByKey(const std::string &key);
 
         //! Get the value of config by index
         std::string getValueByIndex(int index);
@@ -59,20 +59,20 @@ namespace SaveConfig
         std::string getKeyByIndex(int index);
 
         //! Get the index of config by key
-        int getIndexByKey(const std::string& key);
+        int getIndexByKey(const std::string &key);
 
         //! Set the value of config by key
         /*!
           If the is no key hit,this function will create a new item and
           add it to configList
         */
-        int setValueByKey(const std::string& value, const std::string& key);
+        int setValueByKey(const std::string &value, const std::string &key);
 
         //! Set the value of config by index
         /*!
          * \sa setValueByKey()
          */
-        int setValueByIndex(const std::string& value, int index);
+        int setValueByIndex(const std::string &value, int index);
         // int deleteByIndex(int index);
       private:
         //! The vector to save all config items

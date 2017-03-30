@@ -19,18 +19,18 @@ namespace PasswordManager
       public:
         PasswordManager();
         //~PasswordManager();
-        int openDB(const std::string& filename);
-        int showIndexByDomain(const std::string& domain);
+        int openDB(const std::string &filename);
+        int showIndexByDomain(const std::string &domain);
         std::string searchByIndex(int index);
-        int addPasswd(const std::string& passwdStr, const std::string& domain);
+        int addPasswd(const std::string &passwdStr, const std::string &domain);
         int deleteByIndex(int index);
         std::vector<std::string> getDomainLists();
 
       private:
         int _initDB();
-        //int _checkDB();
-        char **_getQuery(const char *sqlRequest,int *pnRow=NULL,int *qnRow=NULL);
-        sqlite3* _conn;
+        // int _checkDB();
+        char **_getQuery(const char *sqlRequest, int *pnRow = NULL, int *qnRow = NULL);
+        sqlite3 *_conn;
         std::ostream *_os;
     };
 }
