@@ -15,7 +15,7 @@ namespace StringTool
     }
 
     template <typename T>
-    T convertTo(const std::string& str)
+    T convertTo(const std::string &str)
     {
         std::istringstream iss;
         iss.str(str);

@@ -27,13 +27,13 @@ namespace PasswordGenerator
         /*!
          * \return 0 if done normally
          */
-        int setPwdList(const std::string& pwdList);
+        int setPwdList(const std::string &pwdList);
 
         //! Push a string to pwdList
         /*!
          * \return 0 if done normally
          */
-        int pushPwdList(const std::string& pwdList);
+        int pushPwdList(const std::string &pwdList);
 
         //! Clear the pwdList to empty
         /*!
@@ -61,13 +61,13 @@ namespace PasswordGenerator
         /*!
          * The config contain pwdLength and pwdList
          */
-        int save(const std::string& filename);
+        int save(const std::string &filename);
 
         //! Load the config from a certain file
         /*!
          * \sa save()
          */
-        int load(const std::string& filename);
+        int load(const std::string &filename);
         // std::string generateByExpr(const std::string& expr);
 
       private:

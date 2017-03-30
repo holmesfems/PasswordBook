@@ -1,7 +1,8 @@
 #include "stringTool.h"
+#include <iostream>
 #include <sstream>
 #include "stdlib.h"
-//#define DEBUG
+
 namespace StringTool
 {
     std::vector<std::string> strSplit(const std::string &s, const std::string &delim)
