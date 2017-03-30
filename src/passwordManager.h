@@ -17,15 +17,25 @@ namespace PasswordManager
     class PasswordManager
     {
       public:
-        PasswordManager();
         //~PasswordManager();
+        virtual int openDB(const std::string &filename)=0;
+        virtual int showIndexByDomain(const std::string &domain)=0;
+        virtual std::string searchByIndex(int index)=0;
+        virtual int addPasswd(const std::string &passwdStr, const std::string &domain)=0;
+        virtual int deleteByIndex(int index)=0;
+        virtual std::vector<std::string> getDomainLists()=0;
+    };
+
+    class PasswordManager_SQLite3:public PasswordManager
+    {
+      public:
+        PasswordManager_SQLite3();
         int openDB(const std::string &filename);
         int showIndexByDomain(const std::string &domain);
         std::string searchByIndex(int index);
         int addPasswd(const std::string &passwdStr, const std::string &domain);
         int deleteByIndex(int index);
         std::vector<std::string> getDomainLists();
-
       private:
         int _initDB();
         // int _checkDB();

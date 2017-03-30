@@ -41,7 +41,7 @@ sudo make install
 
 # Licence
 
-Copyright (c) 2017 holmesfems
+Copyright (c) 2017 holmesfems jerryjia
 
 Released under MIT license
 

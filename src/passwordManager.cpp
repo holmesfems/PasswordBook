@@ -13,8 +13,8 @@
 
 namespace PasswordManager
 {
-    PasswordManager::PasswordManager() { _conn = NULL; }
-    int PasswordManager::_initDB()
+    PasswordManager_SQLite3::PasswordManager_SQLite3() { _conn = NULL; }
+    int PasswordManager_SQLite3::_initDB()
     {
         char *errMsg = NULL;
         int err = 0;
@@ -31,7 +31,7 @@ namespace PasswordManager
         return 0;
     }
 
-    char **PasswordManager::_getQuery(const char *sqlRequest, int *pnRow, int *pnCol)
+    char **PasswordManager_SQLite3::_getQuery(const char *sqlRequest, int *pnRow, int *pnCol)
     {
         char **query = NULL;
         char *errMsg = NULL;
@@ -46,7 +46,7 @@ namespace PasswordManager
         return query;
     }
 
-    int PasswordManager::openDB(const std::string &filename)
+    int PasswordManager_SQLite3::openDB(const std::string &filename)
     {
         int err = sqlite3_open_v2(filename.c_str(), &_conn,
                                   SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
@@ -59,7 +59,7 @@ namespace PasswordManager
         return 0;
     }
 
-    int PasswordManager::showIndexByDomain(const std::string &domain)
+    int PasswordManager_SQLite3::showIndexByDomain(const std::string &domain)
     {
         int pnRow, pnCol;
         std::ostringstream sql;
@@ -87,7 +87,7 @@ namespace PasswordManager
         return 0;
     }  // showIndexByDomain()
 
-    std::string PasswordManager::searchByIndex(int index)
+    std::string PasswordManager_SQLite3::searchByIndex(int index)
     {
         int pnRow, pnCol;
         std::ostringstream sql;
@@ -118,7 +118,7 @@ namespace PasswordManager
         return ret;
     }
 
-    int PasswordManager::addPasswd(const std::string &passwdStr, const std::string &domain)
+    int PasswordManager_SQLite3::addPasswd(const std::string &passwdStr, const std::string &domain)
     {
         int pnRow, pnCol;
         std::ostringstream sql;
