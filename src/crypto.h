@@ -5,6 +5,10 @@
  * Distributed under terms of the MIT license.
  */
 
+/*! \file crypto.h
+ *  \brief wrap cryptographic functions
+ */
+
 #ifndef CRYPTO_H
 #define CRYPTO_H
 
@@ -16,10 +20,6 @@
 namespace Crypto
 {
     typedef std::vector<uint8_t> bytes;
-
-    /*! \file crypto.h
-     *  \brief wrap cryptographic functions
-     */
 
     /*! \brief pad string to target length
      *
@@ -39,7 +39,12 @@ namespace Crypto
      *
      *  SAVE_VALUE := encrypt(PWD0, PWD_OUTPUT)
      *  PWD_OUTPUT := decrypt(PWD0, SAVE_VALUE)
-     *  SAVE_VALUE is (IV, Encrypted)
+     *  SAVE_VALUE is {salt_len, salt, IV, Encrypted}
+     *
+     *  user input: PWD0
+     *  key := PBKDF2(PWD0, salt)
+     *  encrypted := aes-256-cbc-pkcs7_encrypt(key, data, iv)
+     *  save: {salt_len, salt, iv, encrypted}
      *
      *  \param pwd_master master password (PWD0)
      *  \param to_encrypt text to be encrypted
@@ -49,6 +54,12 @@ namespace Crypto
     bytes encrypt(const std::string &pwd_master, const std::string &to_encrypt);
 
     /*! \brief decrypt to get password
+     *
+     * load: save
+     * parse into {salt_len, salt, iv, encrypted}
+     * key := PBKDF2(PWD0, salt)
+     * data := decrypt(key, encrypted, iv)
+     *
      *  \param pwd_master master password (PWD0)
      *  \param saved_data data to be decrypted
      *  \return original password string

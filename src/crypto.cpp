@@ -43,7 +43,6 @@ namespace Crypto
                                                  to_encrypt.data() + to_encrypt.length());
         std::unique_ptr<Botan::RandomNumberGenerator> rng(new Botan::AutoSeeded_RNG);
 
-        // ref
         // https://botan.randombit.net/manual/pbkdf.html#_CPPv2NK5PBKDF10derive_keyE6size_tRKNSt6stringEPK4byte6size_t6size_t
         std::unique_ptr<Botan::PBKDF> pbkdf(Botan::get_pbkdf("PBKDF2(SHA-256)"));
         uint8_t salt_len = 16;
