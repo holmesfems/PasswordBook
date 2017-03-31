@@ -12,6 +12,9 @@ add_library ( pbook.crypto
 	crypto.cpp
 	)
 
+include_directories ( pbook.crypto ${BOTAN_INCLUDE_DIRS} )
+target_link_libraries ( pbook.crypto ${BOTAN_LIBRARIES} )
+
 include_directories ( pbook ${Boost_INCLUDE_DIRS} )
 target_link_libraries ( pbook
 	pbook.crypto

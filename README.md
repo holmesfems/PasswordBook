@@ -16,7 +16,7 @@ Please download from [Release Page](https://github.com/holmesfems/PasswordBook/r
 * cmake (building from source)
 * pkgconfig (to find library)
 * c++11 (For regex support)
-* openssl (Encryption support)
+* [botan-2](https://github.com/randombit/botan) (Encryption support)
 * sqlite (Using database to save your password)
 * boost (Used to do some operation on files to save some configs)
 * libreadline
@@ -31,6 +31,7 @@ Please download from [Release Page](https://github.com/holmesfems/PasswordBook/r
 mkdir build && cd build
 cmake -D CMAKE_CXX_COMPILER="/usr/bin/clang++" ..
 make
+make test # If you want tests
 make doc # If you want to build doc
 sudo make install
 ```

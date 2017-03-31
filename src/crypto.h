@@ -32,10 +32,29 @@ namespace Crypto
      *  \return padded vector of byte
      */
     bytes pad(const std::string &pwd_str, uint32_t target_len = 32);
-    /*
-     * SAVE_VALUE := Gen_Enc(PWD0, PWD_OUTPUT)
-     * PWD_OUTPUT := Gen_Dec(PWD0, SAVE_VALUE)
+
+    std::string unpad(const bytes &input);
+
+    /*! \brief encrypt password
+     *
+     *  SAVE_VALUE := encrypt(PWD0, PWD_OUTPUT)
+     *  PWD_OUTPUT := decrypt(PWD0, SAVE_VALUE)
+     *  SAVE_VALUE is (IV, Encrypted)
+     *
+     *  \param pwd_master master password (PWD0)
+     *  \param to_encrypt text to be encrypted
+     *  \return encrypted data {PWD0_Salt_len, PWD0_Salt, IV, Encrypted_Pwd}
+     *  \TODO consider about compatibility when encrypt algorithm update
      */
+    bytes encrypt(const std::string &pwd_master, const std::string &to_encrypt);
+
+    /*! \brief decrypt to get password
+     *  \param pwd_master master password (PWD0)
+     *  \param saved_data data to be decrypted
+     *  \return original password string
+     */
+    std::string decrypt(const std::string &pwd_master, const bytes &saved_data);
+    std::string decrypt(const std::string &pwd_master, const uint8_t *, size_t);
 }
 
 #endif /* !CRYPTO_H */

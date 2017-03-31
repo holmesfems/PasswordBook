@@ -49,11 +49,9 @@ namespace StringTool
 
     char binToHexChar(unsigned char c)
     {
-        if (c < 0 || c > 0x0F) return 0;
-        if (c >= 0 || c < 0x0A)
-            return 0x30 + c;
-        else
-            return 0x37 + c;
+        if (c > 0x0F) return 0;
+        if (c < 0x0A) return 0x30 + c;
+        return 0x37 + c;
     }
 
     std::string hex(char c)
