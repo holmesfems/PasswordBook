@@ -6,8 +6,10 @@
  * Distributed under terms of the MIT license.
  */
 #include "cmdSeparator.h"
+#include <stdio.h>
 #include <iostream>
 #include <vector>
+#include "crypto.h"
 #include "stringTool.h"
 namespace CmdSeparator
 {
@@ -28,6 +30,10 @@ namespace CmdSeparator
     void CmdSeparator::initCmdDict()
     {
         registerCmd("generate", &CmdSeparator::_cmd_generate, "generate random string");
+        registerCmd("opendb", &CmdSeparator::_cmd_opendb,
+                    "open passwd manager db (opendb <dbname>)");
+        registerCmd("addpasswd", &CmdSeparator::_cmd_save_password_for_domain,
+                    "record password into db (addpasswd <dbname> <domain> <pwd0> <pwdoutput>)");
         registerCmd("exit", &CmdSeparator::_cmd_exit, "save and exit");
         registerCmd("help", &CmdSeparator::_cmd_help, "show this help");
     }
@@ -42,6 +48,10 @@ namespace CmdSeparator
         }
 
         Params split = StringTool::strSplit(tcmd, space);
+#ifdef DEBUG
+        std::for_each(split.begin(), split.end(), [](std::string &v) { std::cout << v << ", "; });
+        std::cout << std::endl;
+#endif
         return dispatchCmd(split[0], split);
     }
 
@@ -93,6 +103,59 @@ namespace CmdSeparator
             std::string p;
             std::tie(std::ignore, p) = c.second;
             (*_os) << "\t" << c.first << ": " << p << std::endl;
+        }
+        return 2;
+    }
+
+    int CmdSeparator::_cmd_opendb(Params &param)
+    {
+        if (param.size() <= 1) {
+            (*_os) << "error: need param <dbname>" << std::endl;
+            return 2;
+        }
+        auto &pm = _pManager[param[1]] = std::unique_ptr<PasswordManager::PasswordManager>(
+            PasswordManager::FactoryCreateManager());
+        if (!pm) {
+            (*_os) << "invalid db" << std::endl;
+        }
+        int status = pm->openDB(param[1]);
+        if (status) {
+            (*_os) << "failed" << std::endl;
+            return 2;
+        }
+        (*_os) << "db " << param[1] << " opened" << std::endl;
+        return 2;
+    }
+
+    int CmdSeparator::_cmd_save_password_for_domain(Params &param)
+    {
+        // required param: <dbname> <domain>
+        // additonal input: <pwd0> <password>
+        if (param.size() <= 4) {
+            (*_os) << "error: need param <dbname> <domain> <pwd0> <padoutput>" << std::endl;
+            return 2;
+        }
+        auto &pm = _pManager[param[1]];
+        if (!pm) {
+            (*_os) << "error: db " << param[1] << " not opened" << std::endl;
+            return 2;
+        }
+        auto encrypted_passwd = Crypto::encrypt(param[3], param[4]);
+        // XXX conflict with libreadline ??
+        // std::cout << "input your master key: " << std::flush;
+        // SetStdinEcho(false);
+        // char c = getchar();
+        // PasswordManager::bytes input;
+        // while (c != '\n') {
+        //    input.push_back(c);
+        //    c = getchar();
+        //}
+        // SetStdinEcho(true);
+        int status = pm->addPasswd(std::move(encrypted_passwd), param[2]);
+        if (status) {
+            (*_os) << "error: add failed" << std::endl;
+        } else {
+            (*_os) << "save success" << std::endl;
         }
         return 2;
     }

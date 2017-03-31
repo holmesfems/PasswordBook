@@ -12,10 +12,13 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+#include "miscUtil.h"
 #include "passwordGenerator.h"
+#include "passwordManager.h"
 namespace CmdSeparator
 {
     using Params = std::vector<std::string>;
@@ -66,6 +69,9 @@ namespace CmdSeparator
         //! PasswordGenerator module
         PasswordGenerator::PasswordGenerator *_pwdGenerator;
 
+        //! "dbname" -> PasswordManager
+        std::map<std::string, std::unique_ptr<PasswordManager::PasswordManager>> _pManager;
+
         //! The output stream to show all messages
         std::ostream *_os;
 
@@ -74,7 +80,9 @@ namespace CmdSeparator
 
         int _cmd_generate(Params &param);
         int _cmd_exit(Params &param);
-        int _cmd_help(Params &Param);
+        int _cmd_help(Params &param);
+        int _cmd_opendb(Params &param);
+        int _cmd_save_password_for_domain(Params &param);
     };
 
     //! The default path of the config file of PasswordGenerator

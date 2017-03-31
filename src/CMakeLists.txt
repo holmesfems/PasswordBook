@@ -12,6 +12,7 @@ target_link_libraries ( pbook.db ${SQLITE3_LIBRARIES} )
 
 add_executable ( pbook
 	main.cpp
+	miscUtil.cpp
 	cmdSeparator.cpp
 	passwordGenerator.cpp
 	randomTool.cpp

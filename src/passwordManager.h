@@ -22,12 +22,14 @@ namespace PasswordManager
         //~PasswordManager();
         virtual int32_t openDB(const std::string &filename) = 0;
         virtual int32_t showIndexByDomain(const std::string &domain) = 0;
-        virtual bytes searchByIndex(int32_t index) = 0;
+        virtual bytes searchByIndex(int32_t id) = 0;
         virtual int32_t addPasswd(bytes passwd, const std::string &domain) = 0;
-        virtual int32_t deleteByIndex(int32_t index) = 0;
+        virtual int32_t deleteByIndex(int32_t id) = 0;
         virtual std::vector<std::string> getDomainLists() = 0;
         virtual std::string version() { return VERSION; }
     };
+
+    PasswordManager *FactoryCreateManager(const std::string &dbtype = "sqlite3");
 
     class PasswordManager_SQLite3 : public PasswordManager
     {
@@ -37,10 +39,12 @@ namespace PasswordManager
         inline std::string getEncVer() { return _encVer; }
         int32_t openDB(const std::string &filename) override;
         int32_t showIndexByDomain(const std::string &domain) override;
-        bytes searchByIndex(int32_t index) override;
+        bytes searchByIndex(int32_t id) override;
         int32_t addPasswd(bytes passwd, const std::string &domain) override;
-        int32_t deleteByIndex(int32_t index) override;
+        int32_t deleteByIndex(int32_t id) override;
         std::vector<std::string> getDomainLists() override;
+
+        static void errorLogCallback(void *pArg, int iErrCode, const char *zMsg);
 
       private:
         int32_t _initDB();
@@ -53,3 +57,5 @@ namespace PasswordManager
 }
 
 #endif  // _PASSWORDMANAGER_H
+
+/* vim: set et: */

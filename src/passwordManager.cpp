@@ -13,18 +13,29 @@
 
 namespace PasswordManager
 {
+    PasswordManager *FactoryCreateManager(const std::string &dbtype)
+    {
+        if (dbtype == "sqlite3") {
+            return new PasswordManager_SQLite3();
+        }
+        return nullptr;
+    }
+
     PasswordManager_SQLite3::PasswordManager_SQLite3()
     {
         _conn = NULL;
         _os = &(std::cout);
+
+        sqlite3_config(SQLITE_CONFIG_LOG, &PasswordManager_SQLite3::errorLogCallback, NULL);
     }
 
     int32_t PasswordManager_SQLite3::_initDB()
     {
         char *errMsg = NULL;
         int32_t err = 0;
+        // TODO change 'table1' to macro or configurable variable
         err = sqlite3_exec(_conn, R"(CREATE TABLE IF NOT EXISTS table1
-            (index INTEGER PRIMARY KEY AUTOINCREMENT,
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
              domain TEXT UNIQUE ON CONFLICT REPLACE,
              pwdoutput BLOB NOT NULL,
              encver TEXT NOT NULL))",
@@ -61,19 +72,18 @@ namespace PasswordManager
         int32_t err = sqlite3_open_v2(filename.c_str(), &_conn,
                                       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
         if (err != SQLITE_OK) {
-            (*_os) << "An error occured while open database file:" << filename << std::endl;
+            (*_os) << "An error occured while open database file: " << filename
+                   << ".  error_code: " << err << " " << sqlite3_errstr(err) << std::endl;
             return err;
         }
-        _initDB();
-        //_checkDB();
-        return 0;
+        return _initDB();
     }
 
     int32_t PasswordManager_SQLite3::showIndexByDomain(const std::string &domain)
     {
         int32_t pnRow, pnCol;
         std::ostringstream sql;
-        sql << R"(SELECT index,domain FROM table1 WHERE domain LIKE '%)" << domain << R"(%')";
+        sql << R"(SELECT id,domain FROM table1 WHERE domain LIKE '%)" << domain << R"(%')";
         char **query = _getQuery(sql.str().c_str(), &pnRow, &pnCol);
         if (query == NULL) {
             (*_os) << "An error occured while searching domain: " << domain << std::endl;
@@ -97,10 +107,10 @@ namespace PasswordManager
         return 0;
     }  // showIndexByDomain()
 
-    bytes PasswordManager_SQLite3::searchByIndex(int32_t index)
+    bytes PasswordManager_SQLite3::searchByIndex(int32_t id)
     {
         std::ostringstream sql;
-        sql << R"(SELECT pwdoutput,encver FROM table1 WHERE index = ?)";
+        sql << R"(SELECT pwdoutput,encver FROM table1 WHERE id = ?)";
         sqlite3_stmt *pstmt;
         int32_t rc;
         int32_t nblob;
@@ -110,7 +120,7 @@ namespace PasswordManager
             (*_os) << "An error occured while selecting table" << std::endl;
             return ret;
         }
-        sqlite3_bind_int(pstmt, 1, index);
+        sqlite3_bind_int(pstmt, 1, id);
         rc = sqlite3_step(pstmt);
         if (rc == SQLITE_ROW) {
             nblob = sqlite3_column_bytes(pstmt, 0);
@@ -141,4 +151,24 @@ namespace PasswordManager
         rc = sqlite3_finalize(pstmt);
         return rc;
     }
+
+    int32_t PasswordManager_SQLite3::deleteByIndex(int32_t id)
+    {
+        // TODO
+        return 0;
+    }
+
+    std::vector<std::string> PasswordManager_SQLite3::getDomainLists()
+    {
+        // TODO
+        return {};
+    }
+
+    void PasswordManager_SQLite3::errorLogCallback(void *pArg, int iErrCode, const char *zMsg)
+    {
+        (void)pArg;
+        std::cerr << "(" << iErrCode << ") " << zMsg << std::endl;
+    }
 }
+
+/* vim: set et: */
