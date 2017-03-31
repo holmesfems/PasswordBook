@@ -15,7 +15,7 @@
 namespace PasswordManager
 {
     typedef std::vector<uint8_t> bytes;
-    const std::string VERSION = "1.0.0";
+    const std::string VERSION = "0.0.0";
     class PasswordManager
     {
       public:
@@ -35,12 +35,12 @@ namespace PasswordManager
         PasswordManager_SQLite3();
         inline void setEncVer(const std::string encVer) { _encVer = encVer; }
         inline std::string getEncVer() { return _encVer; }
-        int32_t openDB(const std::string &filename);
-        int32_t showIndexByDomain(const std::string &domain);
-        bytes searchByIndex(int32_t index);
-        int32_t addPasswd(bytes passwd, const std::string &domain);
-        int32_t deleteByIndex(int32_t index);
-        std::vector<std::string> getDomainLists();
+        int32_t openDB(const std::string &filename) override;
+        int32_t showIndexByDomain(const std::string &domain) override;
+        bytes searchByIndex(int32_t index) override;
+        int32_t addPasswd(bytes passwd, const std::string &domain) override;
+        int32_t deleteByIndex(int32_t index) override;
+        std::vector<std::string> getDomainLists() override;
 
       private:
         int32_t _initDB();

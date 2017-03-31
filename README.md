@@ -14,15 +14,19 @@ We will use aes-256-cbc and pbkdf2.
 
 Please download from [Release Page](https://github.com/holmesfems/PasswordBook/releases)
 
+# Support Platform
+
+At present, compilation only tested on [Archlinux](https://www.archlinux.org/) and [Funtoo](http://www.funtoo.org)/[Gentoo](https://gentoo.org/)
+
 # Requirement
 
-* cmake (building from source)
-* pkgconfig (to find library)
-* c++11 (For regex support)
+* c++11 compatible compiler
+* [cmake](https://cmake.org/)>=3.0.2 (for building from source)
+* [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) (to find library)
 * [botan-2](https://github.com/randombit/botan) (Encryption support)
-* sqlite (Using database to save your password)
-* boost (Used to do some operation on files to save some configs)
-* libreadline
+* [sqlite3](http://sqlite.org/src/doc/trunk/README.md) (Using database to save password)
+* [boost](http://www.boost.org/) (Used to do some operation on files to save some configs)
+* [libreadline](https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html) (simple repl/shell support)
 * [gtest](https://github.com/google/googletest) (If you want to run tests)
 * [doxygen](https://github.com/doxygen/doxygen) (If you want to build doc)
 

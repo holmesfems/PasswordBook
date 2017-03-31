@@ -26,6 +26,7 @@ find_package ( Boost
 	COMPONENTS filesystem system
 	)
 pkg_check_modules (BOTAN REQUIRED botan-2>=2.0.1)
+pkg_check_modules (SQLITE3 REQUIRED sqlite3>=3.15.2)
 
 ## Set Compilation Database for YouCompleteMe
 # \ref http://bastian.rieck.ru/blog/posts/2015/ycm_cmake/
