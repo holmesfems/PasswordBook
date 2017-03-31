@@ -30,7 +30,6 @@ pkg_check_modules (BOTAN REQUIRED botan-2>=2.0.1)
 ## Set Compilation Database for YouCompleteMe
 # \ref http://bastian.rieck.ru/blog/posts/2015/ycm_cmake/
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-message ( "${CMAKE_CURRENT_BINARY_DIR}" )
 if( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json

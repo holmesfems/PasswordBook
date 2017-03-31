@@ -84,7 +84,7 @@ namespace Crypto
     }
     std::string decrypt(const std::string &pwd_master, const uint8_t *saved_data, size_t saved_len)
     {
-        uint8_t salt_len = saved_data[0]; // extract salt length
+        uint8_t salt_len = saved_data[0];  // extract salt length
         const uint8_t *cur_head = saved_data + 1;
         size_t cur_len = saved_len - 1;
 
