@@ -36,6 +36,8 @@ namespace CmdSeparator
                     "record password into db (addpasswd <dbname> <domain> <pwd0> <pwdoutput>)");
         registerCmd("exit", &CmdSeparator::_cmd_exit, "save and exit");
         registerCmd("help", &CmdSeparator::_cmd_help, "show this help");
+        registerCmd("loadpass", &CmdSeparator::_cmd_load_password,
+                    "load password (loadpass <dbname> <pwd0> <domain>");
     }
 
     CmdSeparator::~CmdSeparator() { _pwdGenerator->save(generatorConfigFile.string()); }
@@ -157,6 +159,30 @@ namespace CmdSeparator
         } else {
             (*_os) << "save success" << std::endl;
         }
+        return 2;
+    }
+
+    int CmdSeparator::_cmd_load_password(Params &param)
+    {
+        if (param.size() <= 3) {
+            (*_os) << "error: need param <dbname> <pwd0> <domain>" << std::endl;
+            return 2;
+        }
+        std::string dbname = param[1];
+        std::string pwd0 = param[2];
+        std::string domain = param[3];
+        auto &pm = _pManager[dbname];
+        if (!pm) {
+            (*_os) << "error: db " << dbname << " not opened" << std::endl;
+            return 2;
+        }
+        PasswordManager::bytes encrypted_passwd = pm->loadPasswd(domain);
+        if (encrypted_passwd.empty()) {
+            (*_os) << "error: domain " << domain << " not found" << std::endl;
+            return 2;
+        }
+        std::string passwd = Crypto::decrypt(pwd0, encrypted_passwd);
+        std::cout << "passwd: " << passwd << std::endl;
         return 2;
     }
 }

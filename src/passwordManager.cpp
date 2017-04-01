@@ -152,6 +152,33 @@ namespace PasswordManager
         return rc;
     }
 
+    bytes PasswordManager_SQLite3::loadPasswd(const std::string &domain)
+    {
+        std::ostringstream sql;
+        sql << R"(SELECT pwdoutput, encver FROM table1 WHERE domain = ?)";
+        sqlite3_stmt *pstmt;
+        int32_t rc;
+        int32_t nblob;
+        bytes ret;
+        rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
+        if (rc != SQLITE_OK) {
+            (*_os) << "An error occured while selecting table" << std::endl;
+            return ret;
+        }
+        sqlite3_bind_text(pstmt, 1, domain.c_str(), -1, SQLITE_STATIC);
+        rc = sqlite3_step(pstmt);
+        if (rc == SQLITE_ROW) {
+            nblob = sqlite3_column_bytes(pstmt, 0);
+            const uint8_t *zblob = (const uint8_t *)(sqlite3_column_blob(pstmt, 0));
+            ret = bytes(zblob, zblob + nblob);
+            //_encVer = (const char *)(sqlite3_column_text(pstmt, 0));
+        } else {
+            (*_os) << "rc: " << rc << " " << sqlite3_errstr(rc) << std::endl;
+        }
+        rc = sqlite3_finalize(pstmt);
+        return ret;
+    }
+
     int32_t PasswordManager_SQLite3::deleteByIndex(int32_t id)
     {
         // TODO

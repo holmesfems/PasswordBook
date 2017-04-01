@@ -83,6 +83,7 @@ namespace CmdSeparator
         int _cmd_help(Params &param);
         int _cmd_opendb(Params &param);
         int _cmd_save_password_for_domain(Params &param);
+        int _cmd_load_password(Params &param);
     };
 
     //! The default path of the config file of PasswordGenerator
