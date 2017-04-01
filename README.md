@@ -45,6 +45,18 @@ sudo make install
 
 # Usage
 
+interactive shell: pbook, use *help* to get available commands
+
+Example:
+```
+opendb test.db
+addpasswd test.db google.com testpwd0 testpwdgoogle
+loadpass test.db testpwd0 google.com
+exit
+```
+
+(The command line interface is a little bit ugly... Orz)
+
 # Changelog
 
 # Licence
