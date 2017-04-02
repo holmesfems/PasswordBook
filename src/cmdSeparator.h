@@ -8,6 +8,7 @@
 
 #ifndef _CMDSEPRATOR_H
 #define _CMDSEPRATOR_H
+#include <algorithm>
 #include <boost/filesystem.hpp>
 #include <functional>
 #include <iostream>

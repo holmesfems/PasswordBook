@@ -25,9 +25,9 @@ void SetStdinEcho(bool enable)
     struct termios tty;
     tcgetattr(STDIN_FILENO, &tty);
     if (!enable)
-        tty.c_lflag &= ~ECHO;
+        tty.c_lflag &= ~(ECHO | ICANON);
     else
-        tty.c_lflag |= ECHO;
+        tty.c_lflag |= (ECHO | ICANON);
 
     (void)tcsetattr(STDIN_FILENO, TCSANOW, &tty);
 #endif

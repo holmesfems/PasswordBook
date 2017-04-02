@@ -33,11 +33,11 @@ namespace CmdSeparator
         registerCmd("opendb", &CmdSeparator::_cmd_opendb,
                     "open passwd manager db (opendb <dbname>)");
         registerCmd("addpasswd", &CmdSeparator::_cmd_save_password_for_domain,
-                    "record password into db (addpasswd <dbname> <domain> <pwd0> <pwdoutput>)");
+                    "record password into db (addpasswd <dbname> <domain>)");
         registerCmd("exit", &CmdSeparator::_cmd_exit, "save and exit");
         registerCmd("help", &CmdSeparator::_cmd_help, "show this help");
         registerCmd("loadpass", &CmdSeparator::_cmd_load_password,
-                    "load password (loadpass <dbname> <pwd0> <domain>");
+                    "load password (loadpass <dbname> <domain>");
     }
 
     CmdSeparator::~CmdSeparator() { _pwdGenerator->save(generatorConfigFile.string()); }
@@ -133,27 +133,26 @@ namespace CmdSeparator
     {
         // required param: <dbname> <domain>
         // additonal input: <pwd0> <password>
-        if (param.size() <= 4) {
-            (*_os) << "error: need param <dbname> <domain> <pwd0> <padoutput>" << std::endl;
+        if (param.size() <= 2) {
+            //(*_os) << "error: need param <dbname> <domain> <pwd0> <pwdoutput>" << std::endl;
+            (*_os) << "error: need param <dbname> <domain>" << std::endl;
             return 2;
         }
-        auto &pm = _pManager[param[1]];
+        std::string dbname = std::move(param[1]);
+        std::string domain = std::move(param[2]);
+        auto &pm = _pManager[dbname];
         if (!pm) {
-            (*_os) << "error: db " << param[1] << " not opened" << std::endl;
+            (*_os) << "error: db " << dbname << " not opened" << std::endl;
             return 2;
         }
-        auto encrypted_passwd = Crypto::encrypt(param[3], param[4]);
-        // XXX conflict with libreadline ??
-        // std::cout << "input your master key: " << std::flush;
-        // SetStdinEcho(false);
-        // char c = getchar();
-        // PasswordManager::bytes input;
-        // while (c != '\n') {
-        //    input.push_back(c);
-        //    c = getchar();
-        //}
-        // SetStdinEcho(true);
-        int status = pm->addPasswd(std::move(encrypted_passwd), param[2]);
+
+        std::cout << "input your master key: " << std::flush;
+        std::string pwd0 = ReadPassword<std::string>();
+        std::cout << "input your password for domain: " << domain << std::flush;
+        std::string pwdoutput = ReadPassword<std::string>();
+        auto encrypted_passwd = Crypto::encrypt(pwd0, pwdoutput);
+
+        int status = pm->addPasswd(std::move(encrypted_passwd), domain);
         if (status) {
             (*_os) << "error: add failed" << std::endl;
         } else {
@@ -164,18 +163,21 @@ namespace CmdSeparator
 
     int CmdSeparator::_cmd_load_password(Params &param)
     {
-        if (param.size() <= 3) {
-            (*_os) << "error: need param <dbname> <pwd0> <domain>" << std::endl;
+        if (param.size() <= 2) {
+            (*_os) << "error: need param <dbname> <domain>" << std::endl;
             return 2;
         }
         std::string dbname = param[1];
-        std::string pwd0 = param[2];
-        std::string domain = param[3];
+        std::string domain = param[2];
         auto &pm = _pManager[dbname];
         if (!pm) {
             (*_os) << "error: db " << dbname << " not opened" << std::endl;
             return 2;
         }
+
+        std::cout << "input your master key: " << std::flush;
+        std::string pwd0 = ReadPassword<std::string>();
+
         PasswordManager::bytes encrypted_passwd = pm->loadPasswd(domain);
         if (encrypted_passwd.empty()) {
             (*_os) << "error: domain " << domain << " not found" << std::endl;

@@ -50,8 +50,10 @@ interactive shell: pbook, use *help* to get available commands
 Example:
 ```
 opendb test.db
-addpasswd test.db google.com testpwd0 testpwdgoogle
-loadpass test.db testpwd0 google.com
+addpasswd test.db google.com
+(then input PWD0 PWDOUT, will save your password)
+loadpass test.db google.com
+(then input PWD0, will show your password)
 exit
 ```
 
