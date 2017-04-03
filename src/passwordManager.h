@@ -39,7 +39,7 @@ namespace PasswordManager
         virtual int32_t showIndexByDomain(const std::string &domain) = 0;
         virtual bytes searchByIndex(int32_t id) = 0;
         virtual int32_t addPasswd(bytes passwd, const std::string &domain) = 0;
-        virtual bytes loadPasswd(const std::string &domain) = 0;
+        virtual bytes searchByDomain(const std::string &domain) = 0;
         virtual int32_t deleteByIndex(int32_t id) = 0;
         virtual std::vector<std::string> getDomainLists() = 0;
         virtual std::string version() { return VERSION; }
@@ -57,7 +57,7 @@ namespace PasswordManager
         int32_t showIndexByDomain(const std::string &domain) override;
         bytes searchByIndex(int32_t id) override;
         int32_t addPasswd(bytes passwd, const std::string &domain) override;
-        bytes loadPasswd(const std::string &domain) override;
+        bytes searchByDomain(const std::string &domain) override;
         int32_t deleteByIndex(int32_t id) override;
         std::vector<std::string> getDomainLists() override;
 

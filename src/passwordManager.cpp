@@ -175,7 +175,7 @@ namespace PasswordManager
         return rc;
     }
 
-    bytes PasswordManager_SQLite3::loadPasswd(const std::string &domain)
+    bytes PasswordManager_SQLite3::searchByDomain(const std::string &domain)
     {
         std::ostringstream dummy;
         std::ostream *temp=_os;
