@@ -16,6 +16,21 @@ namespace PasswordManager
 {
     typedef std::vector<uint8_t> bytes;
     const std::string VERSION = "0.0.0";
+    const std::string TABLENAME = "pbook";
+    typedef struct columnItem
+    {
+        std::string name;
+        std::string type;
+        std::string init;
+    } columnItem;
+
+    const std::vector<columnItem> COLUMN
+    {
+        {"id","INTEGER","PRIMARY KEY AUTOINCREMENT"},
+        {"domain","TEXT","UNIQUE ON CONFLICT REPLACE"},
+        {"pwdoutput","BLOB","NOT NULL"},
+        {"encver","TEXT","NOT NULL"}
+    };
     class PasswordManager
     {
       public:
@@ -55,6 +70,7 @@ namespace PasswordManager
         sqlite3 *_conn;
         std::ostream *_os;
         std::string _encVer;
+        std::vector<int32_t> _idlist;
     };
 }
 

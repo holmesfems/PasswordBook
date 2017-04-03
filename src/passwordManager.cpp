@@ -18,7 +18,7 @@ namespace PasswordManager
         if (dbtype == "sqlite3") {
             return new PasswordManager_SQLite3();
         }
-        return nullptr;
+        return NULL;
     }
 
     PasswordManager_SQLite3::PasswordManager_SQLite3()
@@ -33,20 +33,29 @@ namespace PasswordManager
     {
         char *errMsg = NULL;
         int32_t err = 0;
-        // TODO change 'table1' to macro or configurable variable
-        err = sqlite3_exec(_conn, R"(CREATE TABLE IF NOT EXISTS table1
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-             domain TEXT UNIQUE ON CONFLICT REPLACE,
-             pwdoutput BLOB NOT NULL,
-             encver TEXT NOT NULL))",
-                           NULL, NULL, &errMsg);
+        std::ostringstream sql;
+        sql << R"(CREATE TABLE IF NOT EXISTS )" << TABLENAME
+            << "(";
+        int8_t is_first=1;
+        for(auto item:COLUMN)
+        {
+            if(!is_first)
+                sql << ",";
+            else
+                is_first = 0;
+            sql << item.name << " ";
+            sql << item.type << " ";
+            sql << item.init;
+        }
+        sql << ");";
+        err = sqlite3_exec(_conn, sql.str().c_str(),NULL, NULL, &errMsg);
         if (err != SQLITE_OK) {
             (*_os) << errMsg << std::endl;
             sqlite3_free(errMsg);
             errMsg = NULL;
             return err;
         }
-        (*_os) << "Open table 'table1'" << std::endl;
+        (*_os) << "Open table '"<<TABLENAME<<"'" << std::endl;
         return 0;
     }
 
@@ -81,36 +90,47 @@ namespace PasswordManager
 
     int32_t PasswordManager_SQLite3::showIndexByDomain(const std::string &domain)
     {
-        int32_t pnRow, pnCol;
         std::ostringstream sql;
-        sql << R"(SELECT id,domain FROM table1 WHERE domain LIKE '%)" << domain << R"(%')";
-        char **query = _getQuery(sql.str().c_str(), &pnRow, &pnCol);
-        if (query == NULL) {
-            (*_os) << "An error occured while searching domain: " << domain << std::endl;
+        sql << "SELECT "
+            << COLUMN[0].name << "," <<COLUMN[1].name << "FROM "
+            << TABLENAME << " WHERE " << COLUMN[1].name
+            << R"( LIKE '%)" << domain << R"(%')";
+        sqlite3_stmt *pstmt;
+        int32_t rc;
+        rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
+        if (rc != SQLITE_OK) {
+            (*_os) << "An error occured while selecting table" << std::endl;
             return -1;
         }
-        if (pnRow == 0) {
-            (*_os) << "No one is hit" << std::endl;
-        } else {
-            (*_os) << "Hit " << pnRow << " Results:" << std::endl;
-            int32_t i, j;
-            for (i = 0; i <= pnRow; i++) {
-                for (j = 0; j < pnCol; j++) {
-                    if (j > 0) (*_os) << '\t';
-                    (*_os) << query[i * pnCol + j];
-                }
-                (*_os) << std::endl;
-            }
+        std::vector<int32_t> newidList;
+        std::vector<std::string> newdomainList;
+        while((rc = sqlite3_step(pstmt))==SQLITE_ROW)
+        {
+            newidList.push_back(sqlite3_column_int(pstmt,0));
+            newdomainList.push_back((const char *)(sqlite3_column_text(pstmt,0)));
         }
-        sqlite3_free_table(query);
-        query = NULL;
-        return 0;
+        if(newidList.size()>0)
+        {
+        (*_os) << "Hit " << newidList.size() << " items:" << std::endl;
+        size_t i;
+        for(i=0;i<newidList.size();i++)
+        {
+            (*_os) << newidList[i] << "\t" << newdomainList[i] << std::endl;
+        }
+        _idlist = newidList;
+        }
+        else
+        {
+            (*_os) <<"Hit no item" << std::endl;
+        }
+        rc = sqlite3_finalize(pstmt);
+        return newidList.size();
     }  // showIndexByDomain()
 
     bytes PasswordManager_SQLite3::searchByIndex(int32_t id)
     {
         std::ostringstream sql;
-        sql << R"(SELECT pwdoutput,encver FROM table1 WHERE id = ?)";
+        sql << "SELECT "<<COLUMN[2].name << "," << COLUMN[3].name <<" FROM "<<TABLENAME <<" WHERE "<<COLUMN[0].name <<" = ?";
         sqlite3_stmt *pstmt;
         int32_t rc;
         int32_t nblob;
@@ -126,7 +146,7 @@ namespace PasswordManager
             nblob = sqlite3_column_bytes(pstmt, 0);
             const uint8_t *zblob = (const uint8_t *)(sqlite3_column_blob(pstmt, 0));
             ret = bytes(zblob, zblob + nblob);
-            _encVer = (const char *)(sqlite3_column_text(pstmt, 0));
+            _encVer = (const char *)(sqlite3_column_text(pstmt, 1));
         }
         rc = sqlite3_finalize(pstmt);
         return ret;
@@ -135,7 +155,10 @@ namespace PasswordManager
     int32_t PasswordManager_SQLite3::addPasswd(bytes passwd, const std::string &domain)
     {
         std::ostringstream sql;
-        sql << R"(INSERT OR REPLACE INTO table1 (domain,pwdoutput,encver) VALUES(?,?,?))";
+        sql << "INSERT OR REPLACE INTO "
+            << TABLENAME << "("
+            << COLUMN[1].name << "," << COLUMN[2].name << "," <<COLUMN[3].name
+            <<") VALUES (?,?,?)";
         int32_t rc;
         sqlite3_stmt *pstmt;
         rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
@@ -154,6 +177,18 @@ namespace PasswordManager
 
     bytes PasswordManager_SQLite3::loadPasswd(const std::string &domain)
     {
+        std::ostringstream dummy;
+        std::ostream *temp=_os;
+        _os=&dummy;
+        bytes ret;
+        if(showIndexByDomain(domain)>0)
+        {
+            ret = searchByIndex(_idlist[0]);
+        }
+        _os=temp;
+        return ret;
+        //TODO
+        /*
         std::ostringstream sql;
         sql << R"(SELECT pwdoutput, encver FROM table1 WHERE domain = ?)";
         sqlite3_stmt *pstmt;
@@ -176,7 +211,7 @@ namespace PasswordManager
             (*_os) << "rc: " << rc << " " << sqlite3_errstr(rc) << std::endl;
         }
         rc = sqlite3_finalize(pstmt);
-        return ret;
+        return ret;*/
     }
 
     int32_t PasswordManager_SQLite3::deleteByIndex(int32_t id)
