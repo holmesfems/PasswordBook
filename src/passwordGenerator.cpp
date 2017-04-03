@@ -102,7 +102,7 @@ namespace PasswordGenerator
             return -1;
         }
         _pwdLength = StringTool::convertTo<int>(val1);
-        std::regex listval(R "(".*")");
+        std::regex listval(R"(".*")");
         std::vector<std::smatch *> listmatch = regex_searchOne(listval, val2);
         if (listmatch.size() == 0) {
             std::cerr << "Wrong type value:" << val2;

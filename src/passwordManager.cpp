@@ -34,7 +34,7 @@ namespace PasswordManager
         char *errMsg = NULL;
         int32_t err = 0;
         std::ostringstream sql;
-        sql << R "(CREATE TABLE IF NOT EXISTS )" << TABLENAME << "(";
+        sql << R"(CREATE TABLE IF NOT EXISTS )" << TABLENAME << "(";
         int8_t is_first = 1;
         for (auto item : COLUMN) {
             if (!is_first)
@@ -57,23 +57,6 @@ namespace PasswordManager
         return 0;
     }
 
-    char **PasswordManager_SQLite3::_getQuery(const char *sqlRequest, int32_t *pnRow,
-                                              int32_t *pnCol)
-    {
-        char **query = NULL;
-        char *errMsg = NULL;
-        int32_t err;
-        err = sqlite3_get_table(_conn, sqlRequest, &query, pnRow, pnCol, &errMsg);
-        if (err != SQLITE_OK) {
-            (*_os) << errMsg << std::endl;
-            sqlite3_free(errMsg);
-            errMsg = NULL;
-            (*pnRow) = ((*pnCol) = -1);
-            return NULL;
-        }
-        return query;
-    }
-
     int32_t PasswordManager_SQLite3::openDB(const std::string &filename)
     {
         int32_t err = sqlite3_open_v2(filename.c_str(), &_conn,
@@ -90,7 +73,7 @@ namespace PasswordManager
     {
         std::ostringstream sql;
         sql << "SELECT " << COLUMN[0].name << "," << COLUMN[1].name << "FROM " << TABLENAME
-            << " WHERE " << COLUMN[1].name << R "( LIKE '%)" << domain << R "(%')";
+            << " WHERE " << COLUMN[1].name << R"( LIKE '%)" << domain << R"(%')";
         sqlite3_stmt *pstmt;
         int32_t rc;
         rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
@@ -183,6 +166,7 @@ namespace PasswordManager
         std::ostringstream sql;
         sql << "DELETE FROM " << TABLENAME << " WHERE " << COLUMN[0].name << "=?;";
         sqlite3_stmt *pstmt;
+        int rc;
         rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
         if (rc != SQLITE_OK) {
             (*_os) << "An error occured while deleting item" << std::endl;
@@ -202,12 +186,13 @@ namespace PasswordManager
     std::vector<std::string> PasswordManager_SQLite3::getDomainList()
     {
         std::ostringstream sql;
-        sql << "SELECT " << COLUMN[1].name << "FROM " << TABLENAME << ";" sqlite3_stmt * pstmt;
+        sql << "SELECT " << COLUMN[1].name << "FROM " << TABLENAME << ";";
+        sqlite3_stmt * pstmt;
         int32_t rc;
         rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
         if (rc != SQLITE_OK) {
             (*_os) << "An error occured while selecting table" << std::endl;
-            return -1;
+            return {};
         }
         std::vector<std::string> newdomainList;
         while ((rc = sqlite3_step(pstmt)) == SQLITE_ROW) {
