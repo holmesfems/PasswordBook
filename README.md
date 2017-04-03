@@ -48,6 +48,8 @@ sudo make install
 interactive shell: pbook, use *help* to get available commands
 
 Example:
+
+Plan by jerryjia:
 ```
 opendb test.db
 addpasswd test.db google.com
@@ -56,8 +58,91 @@ loadpass test.db google.com
 (then input PWD0, will show your password)
 exit
 ```
-
 (The command line interface is a little bit ugly... Orz)
+
+Plan by holmesfems:
+
+While you open this,you will be asked for main password PWD0 for once.
+There is no alart while you put in a wrong password,but may cause wrong
+result to read your encrypted text in pbook database.To define which database
+to read,just change the configuation file.
+
+To add an item to pbook just type this:
+```
+add domain="mail.google.com"
+
+```
+or
+```
+add "mail.google.com"
+```
+Then it will ask your password to save,type twice then it will be saved.
+or just type:
+```
+add
+```
+Then it will ask the domain and password,just type what it asks.
+
+To change the value of an item,you can use `add` command and the value of
+specific item will be changed as your type in.
+
+To look the item contained in db,you can just type this:
+```
+list
+```
+It will show the id and domain of all item that contained. Or type:
+```
+list "google"
+```
+or
+```
+list domain="google"
+```
+Then will show the item that cotains specific domain.
+Note that it doesn't and won't support searching
+by your saved password.
+
+The index of the item helps you to delete a certain item as below:
+```
+del 0
+```
+or
+```
+del id=0
+```
+or
+```
+del id=0,1,2,3
+```
+
+If you are hard of deciding a strong password of your account,
+you can use the built-in pseudo-random (mt19937) based password generator.
+Type
+```
+gen
+```
+Then you can get a random series of charactor. You can also generate by spacifing
+some variables,like as below:
+```
+gen pwdLength=12 pwdList="abcdABCD1234!@#$ "'.,"
+```
+or
+```
+genSet pwdLength=12 pwdList="abcdABCD1234!@#$ "'.,"
+gen
+```
+or
+```
+genSet pwdList=sa+ba+nu+sg
+gen
+```
+sa=Small Alphabet,ba=Big Alphabet,nu=Numeric,sg=Signature.
+
+
+To exit this application,type as below:
+```
+exit
+```
 
 # Changelog
 
