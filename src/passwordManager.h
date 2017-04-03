@@ -17,20 +17,16 @@ namespace PasswordManager
     typedef std::vector<uint8_t> bytes;
     const std::string VERSION = "0.0.0";
     const std::string TABLENAME = "pbook";
-    typedef struct columnItem
-    {
+    typedef struct columnItem {
         std::string name;
         std::string type;
         std::string init;
     } columnItem;
 
-    const std::vector<columnItem> COLUMN
-    {
-        {"id","INTEGER","PRIMARY KEY AUTOINCREMENT"},
-        {"domain","TEXT","UNIQUE ON CONFLICT REPLACE"},
-        {"pwdoutput","BLOB","NOT NULL"},
-        {"encver","TEXT","NOT NULL"}
-    };
+    const std::vector<columnItem> COLUMN{{"id", "INTEGER", "PRIMARY KEY AUTOINCREMENT"},
+                                         {"domain", "TEXT", "UNIQUE ON CONFLICT REPLACE"},
+                                         {"pwdoutput", "BLOB", "NOT NULL"},
+                                         {"encver", "TEXT", "NOT NULL"}};
     class PasswordManager
     {
       public:

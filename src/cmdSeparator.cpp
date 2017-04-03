@@ -178,7 +178,7 @@ namespace CmdSeparator
         std::cout << "input your master key: " << std::flush;
         std::string pwd0 = ReadPassword<std::string>();
 
-        PasswordManager::bytes encrypted_passwd = pm->loadPasswd(domain);
+        PasswordManager::bytes encrypted_passwd = pm->searchByDomain(domain);
         if (encrypted_passwd.empty()) {
             (*_os) << "error: domain " << domain << " not found" << std::endl;
             return 2;
