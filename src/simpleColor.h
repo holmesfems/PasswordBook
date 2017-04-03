@@ -11,4 +11,4 @@
 #define COLOR_RED "\033[31;1m"
 #define COLOR_GREEN "\033[32;1m"
 #endif
-#endif //_SIMPLECOLOR
+#endif  //_SIMPLECOLOR
