@@ -22,7 +22,9 @@
 #include "passwordManager.h"
 namespace CmdSeparator
 {
-    using Params = std::vector<std::string>;
+    using ParamItem = std::pair<std::string,std::string>;
+    using Params = std::vector<ParamItem>;
+    using CmdSend = std::pair<std::string,Params>;
     using CmdHandler = std::function<int(Params &)>;
     using CmdHelper = std::pair<CmdHandler, std::string>;
     using CmdMap = std::map<std::string, CmdHelper>;
@@ -79,6 +81,12 @@ namespace CmdSeparator
         //! dictionary of cmd param to cmd function handler
         CmdMap _cmdmap;
 
+        //! Convert a string to command
+        static CmdSend _str_to_cmd(const std::string& str);
+        static const char _escape = '\\';
+        static const char _strBracket='"';
+        static const char _devide = ' ';
+
         int _cmd_generate(Params &param);
         int _cmd_exit(Params &param);
         int _cmd_help(Params &param);
@@ -89,6 +97,8 @@ namespace CmdSeparator
 
     //! The default path of the config file of PasswordGenerator
     extern const boost::filesystem::path generatorConfigFile;
+    //TODO or just rename from generatorConfigFile
+    extern const boost::filesystem::path GlobalConfigFile;
 }
 
 #endif  // _CMDSEPRATOR_H

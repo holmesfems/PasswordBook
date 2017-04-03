@@ -188,6 +188,35 @@ namespace CmdSeparator
         std::cout << "passwd: " << passwd << std::endl;
         return 2;
     }
+
+    CmdSend CmdSeparator::_str_to_cmd(const std::string& cmdstr)
+    {
+        std::string trimCmd=StringTool::strTrim(cmdstr);
+        bool first=true;
+        bool inStr=false;
+        bool inEsc=false;
+        bool inSpace=false;
+        bool needEnd=true;
+        const char* data=trimCmd.c_str();
+        size_t i,maxi=trimCmd.length();
+        std::ostringstream oss;
+        std::string key,value;
+        for(i=0;i<maxi;i++)
+        {
+            if(inEsc)
+            {
+                oss << data[i];
+                inEsc = false;
+                continue;
+            }
+            if(data[i] == _escape)
+            {
+                inEsc = true;
+                continue;
+            }
+            //TODO
+        }
+    }
 }
 
 /* vim: set et: */
