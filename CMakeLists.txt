@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0.2)
 
-project (PasswordBook)
+project (PasswordBook VERSION 0.0.1)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
@@ -18,6 +18,7 @@ else()
 endif()
 
 ## Check dependency
+# TODO https://cmake.org/Wiki/CMake:How_To_Find_Libraries
 find_package(PkgConfig)
 find_library ( LIB_READLINE
 	NAMES readline libreadline
@@ -25,8 +26,24 @@ find_library ( LIB_READLINE
 find_package ( Boost
 	COMPONENTS filesystem system
 	)
-pkg_check_modules (BOTAN REQUIRED botan-2>=2.0.1)
-pkg_check_modules (SQLITE3 REQUIRED sqlite3>=3.15.2)
+option (USE_SYSTEM_BOTAN "use system installed botan" ON)
+if (USE_SYSTEM_BOTAN)
+	pkg_check_modules (BOTAN REQUIRED botan-2>=2.0.1)
+else ()
+	# TODO check python
+	include (ExternalProject)
+	ExternalProject_Add (botan
+		PREFIX "${PROJECT_BINARY_DIR}/third_party"
+		GIT_REPOSITORY "https://github.com/randombit/botan.git"
+		GIT_TAG "2.0.1"
+		UPDATE_COMMAND ""
+		SOURCE_DIR "${PROJECT_SOURCE_DIR}/third_party/botan"
+		CONFIGURE_COMMAND ${PROJECT_SOURCE_DIR}/third_party/botan/configure.py --prefix=${PROJECT_BINARY_DIR}/third_party
+		)
+	set (BOTAN_INCLUDE_DIRS "${PROJECT_BINARY_DIR}/third_party/include/botan-2")
+	set (BOTAN_LIBRARIES_DIRS "${PROJECT_BINARY_DIR}/third_party/lib/libbotan-2.a") # statically link
+endif (USE_SYSTEM_BOTAN)
+pkg_check_modules (SQLITE3 REQUIRED sqlite3>=3.8.7)
 
 ## Set Compilation Database for YouCompleteMe
 # \ref http://bastian.rieck.ru/blog/posts/2015/ycm_cmake/
