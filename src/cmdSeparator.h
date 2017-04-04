@@ -28,11 +28,25 @@ namespace CmdSeparator
     using CmdHandler = std::function<int(Params &)>;
     using CmdHelper = std::pair<CmdHandler, std::string>;
     using CmdMap = std::map<std::string, CmdHelper>;
+    using VariableBindItem = std::pair<void *,int8_t>;
+    using VariableBind = std::map<std::string>;
     //! The class to execute the command which is sent by user
     /*!
      * While running the main application,this class should be constructed first,
      * and all commands will be sent to other modules via this class
      */
+    class cmdSeparateHelper
+    {
+        public:
+            static const int8_t INTEGER = 1;
+            static const int8_t TEXT = 2;
+            cmdSeparateHelper(){}
+            void bind(const std::string& key,void *target,int8_t type=TEXT);
+            void set(Params params);
+        private:
+            VariableBind vb;
+    }
+
     class CmdSeparator
     {
       public:
@@ -84,13 +98,14 @@ namespace CmdSeparator
         //! Convert a string to command
         static CmdSend _str_to_cmd(const std::string& str);
         static const char _escape = '\\';
-        static const char _strBracket='"';
+        //static const char _strBracket='"';
         static const char _devide = ' ';
+        static const char _equal = '=';
 
         int _cmd_generate(Params &param);
         int _cmd_exit(Params &param);
         int _cmd_help(Params &param);
-        int _cmd_opendb(Params &param);
+        //int _cmd_opendb(Params &param);
         int _cmd_save_password_for_domain(Params &param);
         int _cmd_load_password(Params &param);
     };

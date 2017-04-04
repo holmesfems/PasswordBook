@@ -15,6 +15,9 @@ namespace CmdSeparator
 {
     const boost::filesystem::path generatorConfigFile("generator.conf");
     const std::string space = " ";
+    //TODO
+    void CmdSeparateHelper::bind(const std::string& key,const
+
     CmdSeparator::CmdSeparator()
     {
         _pwdGenerator = new PasswordGenerator::PasswordGenerator;
@@ -29,15 +32,16 @@ namespace CmdSeparator
 
     void CmdSeparator::initCmdDict()
     {
-        registerCmd("generate", &CmdSeparator::_cmd_generate, "generate random string");
-        registerCmd("opendb", &CmdSeparator::_cmd_opendb,
-                    "open passwd manager db (opendb <dbname>)");
-        registerCmd("addpasswd", &CmdSeparator::_cmd_save_password_for_domain,
-                    "record password into db (addpasswd <dbname> <domain>)");
+        registerCmd("gen", &CmdSeparator::_cmd_generate, "generate random string");
+        //registerCmd("opendb", &CmdSeparator::_cmd_opendb,
+        //            "open passwd manager db (opendb <dbname>)");
+        registerCmd("add", &CmdSeparator::_cmd_save_password_for_domain,
+                    "record password into db (addpasswd <domain>)");
         registerCmd("exit", &CmdSeparator::_cmd_exit, "save and exit");
         registerCmd("help", &CmdSeparator::_cmd_help, "show this help");
-        registerCmd("loadpass", &CmdSeparator::_cmd_load_password,
-                    "load password (loadpass <dbname> <domain>");
+        registerCmd("load", &CmdSeparator::_cmd_load_password,
+                    "load password (loadpass <domain>");
+
     }
 
     CmdSeparator::~CmdSeparator() { _pwdGenerator->save(generatorConfigFile.string()); }
@@ -108,7 +112,7 @@ namespace CmdSeparator
         }
         return 2;
     }
-
+    /*
     int CmdSeparator::_cmd_opendb(Params &param)
     {
         if (param.size() <= 1) {
@@ -127,7 +131,7 @@ namespace CmdSeparator
         }
         (*_os) << "db " << param[1] << " opened" << std::endl;
         return 2;
-    }
+    }*/
 
     int CmdSeparator::_cmd_save_password_for_domain(Params &param)
     {
@@ -193,29 +197,83 @@ namespace CmdSeparator
     {
         std::string trimCmd=StringTool::strTrim(cmdstr);
         bool first=true;
-        bool inStr=false;
-        bool inEsc=false;
+        //bool inStr=false;
+        //bool inEsc=false;
         bool inSpace=false;
-        bool needEnd=true;
+        //bool needEnd=true;
         const char* data=trimCmd.c_str();
         size_t i,maxi=trimCmd.length();
         std::ostringstream oss;
         std::string key,value;
+        std::string cmd;
+        Params ret;
         for(i=0;i<maxi;i++)
         {
-            if(inEsc)
+            if(data[i] == _escape)
             {
-                oss << data[i];
+                i+=1;
+                assert(i>=maxi);
+                switch(data[i])
+                {
+                    case 'v':
+                        oss << '\v';
+                        break;
+                    case 'n':
+                        oss << '\n';
+                        break;
+                    case 't':
+                        oss << '\t';
+                        break;
+                    case 'r':
+                        oss << '\r';
+                        break;
+                    case 'x':
+                        assert(i+2>=maxi);
+                        ostringstream oss2;
+                        oss2 << data[i+1] << data[i+2];
+                        const char *hexcode=StringTool::strToBin(oss2.str());
+                        oss << hexcode[0];
+                        free(hexcode);
+                        i+=2;
+                        break;
+                    default:
+                        oss << data[i];
+                }
                 inEsc = false;
                 continue;
             }
-            if(data[i] == _escape)
+            if(data[i] == _devide)
             {
-                inEsc = true;
-                continue;
+                if(first)
+                {
+                    cmd = oss.str();
+                    oss.str("");
+                    first=false;
+                    continue;
+                }
+                value=oss.str();
+                ParamItem item(key,value);
+                ret.push_back(item);
+                key="";
+                value="";
+                oss.str("");
+            }
+            if(data[i] == _equal)
+            {
+                assert(first);
+                assert(i==maxi-1);
+                key=oss.str();
+                oss.str("");
             }
             //TODO
+        }//for
+        if(value != "" && oss.str()!="")
+        {
+            value=oss.str();
+            ParamItem item(key,value);
+            ret.push_back(item);
         }
+        return CmdSend(cmd,ret);
     }
 }
 
