@@ -55,7 +55,7 @@ namespace StringTool
      * \param length The length of the data will be recorded to this pointer
      * \return A new char siries which is the result of convert
      */
-    const char *strToBin(const std::string &str, int *length = NULL);
+    char *strToBin(const std::string &str, int *length = NULL);
 
     //! The function that add a bracket to a string
     /*!

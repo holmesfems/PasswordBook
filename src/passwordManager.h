@@ -148,7 +148,7 @@ namespace PasswordManager
          *
          * The version will determine which method of encryption will be used
          */
-        std::string _encVer;
+        std::string _encVer = "0.0.0";
         // The list of id hit by "showIndexByDomain"
         /*!
          * After calling "showIndexByDomain()",this value will be automatically

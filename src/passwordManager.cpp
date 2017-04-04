@@ -59,8 +59,7 @@ namespace PasswordManager
 
     int32_t PasswordManager_SQLite3::openDB(const std::string &filename)
     {
-        int32_t err = sqlite3_open_v2(filename.c_str(), &_conn,
-                                      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+        int32_t err = sqlite3_open(filename.c_str(), &_conn);
         if (err != SQLITE_OK) {
             (*_os) << "An error occured while open database file: " << filename
                    << ".  error_code: " << err << " " << sqlite3_errstr(err) << std::endl;
@@ -187,7 +186,7 @@ namespace PasswordManager
     {
         std::ostringstream sql;
         sql << "SELECT " << COLUMN[1].name << "FROM " << TABLENAME << ";";
-        sqlite3_stmt * pstmt;
+        sqlite3_stmt *pstmt;
         int32_t rc;
         rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
         if (rc != SQLITE_OK) {

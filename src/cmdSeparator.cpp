@@ -10,38 +10,83 @@
 #include <iostream>
 #include <vector>
 #include "crypto.h"
+#include "stdio.h"
+#include "stdlib.h"
 #include "stringTool.h"
 namespace CmdSeparator
 {
     const boost::filesystem::path generatorConfigFile("generator.conf");
+    const boost::filesystem::path DBPath(".pbook.db", "~/");
+    const boost::filesystem::path GlobalConfigFile(".pbook.conf", "~/");
     const std::string space = " ";
-    //TODO
-    void CmdSeparateHelper::bind(const std::string& key,const
+    void CmdSeparateHelper::bind(const std::string &key, void *target, int8_t type)
+    {
+        VariableBindItem vbi(target, type);
+        _vb.insert(std::pair<std::string, VariableBindItem>(key, vbi));
+    }
 
+    void CmdSeparateHelper::bind(const char *key, void *target, int8_t type)
+    {
+        std::string keystr = key;
+        bind(keystr, target, type);
+    }
+
+    void CmdSeparateHelper::set(Params &params)
+    {
+        for (auto item : params) {
+            VariableBind::iterator iter;
+            if ((iter = _vb.find(item.first)) != _vb.end()) {
+                VariableBindItem vbi = iter->second;
+                switch (vbi.second) {
+                    case INTEGER:
+                        *((int32_t *)(vbi.first)) = StringTool::convertTo<int32_t>(item.second);
+                        break;
+                    case TEXT:
+                        *((std::string *)(vbi.first)) = item.second;
+                        break;
+                }
+            }
+        }
+    }
     CmdSeparator::CmdSeparator()
+    {
+        initPG(generatorConfigFile);
+        initPMDB(DBPath);
+        initCmdDict();
+    }
+    CmdSeparator::CmdSeparator(const std::string &dbpath)
+    {
+        initPG(generatorConfigFile);
+        initPMDB(boost::filesystem::path(dbpath));
+        initCmdDict();
+    }
+
+    void CmdSeparator::initPMDB(const boost::filesystem::path &dbpath)
+    {
+        _pwdManager = PasswordManager::FactoryCreateManager("sqlite3");
+        _pwdManager->openDB(dbpath.string());
+    }
+
+    void CmdSeparator::initPG(const boost::filesystem::path &config)
     {
         _pwdGenerator = new PasswordGenerator::PasswordGenerator;
         boost::system::error_code error;
-        if (boost::filesystem::exists(generatorConfigFile, error)) {
-            _pwdGenerator->load(generatorConfigFile.string());
+        if (boost::filesystem::exists(config, error)) {
+            _pwdGenerator->load(config.string());
         }
-        _os = &(std::cout);
-
-        initCmdDict();
     }
 
     void CmdSeparator::initCmdDict()
     {
-        registerCmd("gen", &CmdSeparator::_cmd_generate, "generate random string");
-        //registerCmd("opendb", &CmdSeparator::_cmd_opendb,
+        registCmd("gen", &CmdSeparator::_cmd_generate, "generate random string");
+        // registCmd("opendb", &CmdSeparator::_cmd_opendb,
         //            "open passwd manager db (opendb <dbname>)");
-        registerCmd("add", &CmdSeparator::_cmd_save_password_for_domain,
-                    "record password into db (addpasswd <domain>)");
-        registerCmd("exit", &CmdSeparator::_cmd_exit, "save and exit");
-        registerCmd("help", &CmdSeparator::_cmd_help, "show this help");
-        registerCmd("load", &CmdSeparator::_cmd_load_password,
-                    "load password (loadpass <domain>");
-
+        registCmd("add", &CmdSeparator::_cmd_save_password_for_domain,
+                  "record password into db (addpasswd <domain>)");
+        registCmd("exit", &CmdSeparator::_cmd_exit, "save and exit");
+        registCmd("help", &CmdSeparator::_cmd_help, "show this help");
+        registCmd("load", &CmdSeparator::_cmd_load_password, "load password (loadpass <domain>");
+        _os = &(std::cout);
     }
 
     CmdSeparator::~CmdSeparator() { _pwdGenerator->save(generatorConfigFile.string()); }
@@ -53,16 +98,16 @@ namespace CmdSeparator
             return 1;
         }
 
-        Params split = StringTool::strSplit(tcmd, space);
+        CmdSend tosend = _str_to_cmd(tcmd);
 #ifdef DEBUG
         std::for_each(split.begin(), split.end(), [](std::string &v) { std::cout << v << ", "; });
         std::cout << std::endl;
 #endif
-        return dispatchCmd(split[0], split);
+        return dispatchCmd(tosend.first, tosend.second);
     }
 
-    inline void CmdSeparator::registerCmd(std::string cmd, std::function<int(Params &)> handler,
-                                          std::string help_string)
+    inline void CmdSeparator::registCmd(std::string cmd, std::function<int(Params &)> handler,
+                                        std::string help_string)
     {
         if (help_string.empty()) {
             help_string = typeid(handler).name();
@@ -70,11 +115,11 @@ namespace CmdSeparator
         _cmdmap[std::move(cmd)] = std::make_pair(handler, std::move(help_string));
     }
 
-    inline void CmdSeparator::registerCmd(std::string cmd, int (CmdSeparator::*f)(Params &),
-                                          std::string help_string)
+    inline void CmdSeparator::registCmd(std::string cmd, int (CmdSeparator::*f)(Params &),
+                                        std::string help_string)
     {
-        registerCmd(std::move(cmd), std::bind(f, this, std::placeholders::_1),
-                    std::move(help_string));
+        registCmd(std::move(cmd), std::bind(f, this, std::placeholders::_1),
+                  std::move(help_string));
     }
 
     int CmdSeparator::dispatchCmd(const std::string &cmd, Params &split_param)
@@ -110,7 +155,7 @@ namespace CmdSeparator
             std::tie(std::ignore, p) = c.second;
             (*_os) << "\t" << c.first << ": " << p << std::endl;
         }
-        return 2;
+        return 3;
     }
     /*
     int CmdSeparator::_cmd_opendb(Params &param)
@@ -137,84 +182,93 @@ namespace CmdSeparator
     {
         // required param: <dbname> <domain>
         // additonal input: <pwd0> <password>
-        if (param.size() <= 2) {
+        if (param.size() <= 1) {
             //(*_os) << "error: need param <dbname> <domain> <pwd0> <pwdoutput>" <<
             // std::endl;
-            (*_os) << "error: need param <dbname> <domain>" << std::endl;
-            return 2;
+            (*_os) << "error: need param <domain>" << std::endl;
+            return -2;
         }
-        std::string dbname = std::move(param[1]);
-        std::string domain = std::move(param[2]);
-        auto &pm = _pManager[dbname];
-        if (!pm) {
-            (*_os) << "error: db " << dbname << " not opened" << std::endl;
-            return 2;
+        CmdSeparateHelper csh;
+        std::string domain;
+        csh.bind("domain", (void *)(&domain), CmdSeparateHelper::TEXT);
+        csh.bind("", (void *)(&domain), CmdSeparateHelper::TEXT);
+        csh.set(param);
+        while (domain == "") {
+            std::cout << "input the domain:";
+            std::cin >> domain;
         }
-
+        std::string pwd0, pwd0c;
         std::cout << "input your master key: " << std::flush;
-        std::string pwd0 = ReadPassword<std::string>();
+        pwd0 = ReadPassword<std::string>();
+        std::cout << "confirm your master key: " << std::flush;
+        pwd0c = ReadPassword<std::string>();
+        if (pwd0 != pwd0c) {
+            (*_os) << "Confirm again!" << std::endl;
+            return -2;
+        }
         std::cout << "input your password for domain: " << domain << std::flush;
         std::string pwdoutput = ReadPassword<std::string>();
         auto encrypted_passwd = Crypto::encrypt(pwd0, pwdoutput);
-
-        int status = pm->addPasswd(std::move(encrypted_passwd), domain);
+        int status = _pwdManager->addPasswd(std::move(encrypted_passwd), domain);
         if (status) {
             (*_os) << "error: add failed" << std::endl;
         } else {
-            (*_os) << "save success" << std::endl;
+            (*_os) << "saved successfully" << std::endl;
         }
         return 2;
     }
 
     int CmdSeparator::_cmd_load_password(Params &param)
     {
-        if (param.size() <= 2) {
-            (*_os) << "error: need param <dbname> <domain>" << std::endl;
-            return 2;
+        std::string domain;
+        int32_t index = -1;
+        CmdSeparateHelper csh;
+        csh.bind("", &domain, CmdSeparateHelper::TEXT);
+        csh.bind("domain", &domain, CmdSeparateHelper::TEXT);
+        csh.bind("index", &index, CmdSeparateHelper::INTEGER);
+        csh.set(param);
+        if (domain == "" && index < 0) {
+            (*_os) << "Need param <domain> or <index>" << std::endl;
+            return -2;
         }
-        std::string dbname = param[1];
-        std::string domain = param[2];
-        auto &pm = _pManager[dbname];
-        if (!pm) {
-            (*_os) << "error: db " << dbname << " not opened" << std::endl;
-            return 2;
-        }
-
         std::cout << "input your master key: " << std::flush;
         std::string pwd0 = ReadPassword<std::string>();
-
-        PasswordManager::bytes encrypted_passwd = pm->searchByDomain(domain);
+        PasswordManager::bytes encrypted_passwd;
+        if (index >= 0)
+            encrypted_passwd = _pwdManager->searchByIndex(index);
+        else
+            encrypted_passwd = _pwdManager->searchByDomain(domain);
         if (encrypted_passwd.empty()) {
             (*_os) << "error: domain " << domain << " not found" << std::endl;
-            return 2;
+            return -2;
         }
         std::string passwd = Crypto::decrypt(pwd0, encrypted_passwd);
         std::cout << "passwd: " << passwd << std::endl;
         return 2;
     }
 
-    CmdSend CmdSeparator::_str_to_cmd(const std::string& cmdstr)
+    CmdSend CmdSeparator::_str_to_cmd(const std::string &cmdstr)
     {
-        std::string trimCmd=StringTool::strTrim(cmdstr);
-        bool first=true;
-        //bool inStr=false;
-        //bool inEsc=false;
-        bool inSpace=false;
-        //bool needEnd=true;
-        const char* data=trimCmd.c_str();
-        size_t i,maxi=trimCmd.length();
+        std::string trimCmd = StringTool::strTrim(cmdstr);
+        bool first = true;
+        // bool inStr=false;
+        // bool inEsc=false;
+        // bool inSpace=false;
+        // bool needEnd=true;
+        bool inEqual = false;
+        const char *data = trimCmd.c_str();
+        size_t i, maxi = trimCmd.length();
         std::ostringstream oss;
-        std::string key,value;
+        std::string key, value;
         std::string cmd;
         Params ret;
-        for(i=0;i<maxi;i++)
-        {
-            if(data[i] == _escape)
-            {
-                i+=1;
-                assert(i>=maxi);
-                switch(data[i])
-                {
+        for (i = 0; i < maxi; i++) {
+            if (data[i] == _escape) {
+                i += 1;
+                assert(i >= maxi);
+                char *hexcode;
+                std::ostringstream oss2;
+                switch (data[i]) {
                     case 'v':
                         oss << '\v';
                         break;
@@ -228,52 +282,61 @@ namespace CmdSeparator
                         oss << '\r';
                         break;
                     case 'x':
-                        assert(i+2>=maxi);
-                        ostringstream oss2;
-                        oss2 << data[i+1] << data[i+2];
-                        const char *hexcode=StringTool::strToBin(oss2.str());
+                        assert(i + 2 >= maxi);
+                        oss2 << data[i + 1] << data[i + 2];
+                        hexcode = StringTool::strToBin(oss2.str());
                         oss << hexcode[0];
                         free(hexcode);
-                        i+=2;
+                        i += 2;
                         break;
                     default:
                         oss << data[i];
                 }
-                inEsc = false;
+                // inEsc = false;
                 continue;
             }
-            if(data[i] == _devide)
-            {
-                if(first)
-                {
+            if (data[i] == _devide) {
+                // if(inSpace) continue;
+                do {
+                    i++;
+                } while (i < maxi && data[i] == _devide);
+                i -= 1;
+                if (first) {
                     cmd = oss.str();
                     oss.str("");
-                    first=false;
+                    first = false;
                     continue;
                 }
-                value=oss.str();
-                ParamItem item(key,value);
+                value = oss.str();
+                ParamItem item(key, value);
                 ret.push_back(item);
-                key="";
-                value="";
+                key = "";
+                value = "";
                 oss.str("");
+                // inSpace = true;
+                continue;
             }
-            if(data[i] == _equal)
-            {
+            if (data[i] == _equal) {
                 assert(first);
-                assert(i==maxi-1);
-                key=oss.str();
-                oss.str("");
+                assert(i == maxi - 1);
+                if (!inEqual) {
+                    key = oss.str();
+                    oss.str("");
+                    inEqual = true;
+                } else {
+                    oss << data[i];
+                }
+                continue;
             }
-            //TODO
-        }//for
-        if(value != "" && oss.str()!="")
-        {
-            value=oss.str();
-            ParamItem item(key,value);
+            oss << data[i];
+            // TODO
+        }  // for
+        if (value != "" && oss.str() != "") {
+            value = oss.str();
+            ParamItem item(key, value);
             ret.push_back(item);
         }
-        return CmdSend(cmd,ret);
+        return CmdSend(cmd, ret);
     }
 }
 

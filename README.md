@@ -69,12 +69,12 @@ to read,just change the configuation file.
 
 To add an item to pbook just type this:
 ```
-add domain="mail.google.com"
+add domain=mail.google.com
 
 ```
 or
 ```
-add "mail.google.com"
+add mail.google.com
 ```
 Then it will ask your password to save,type twice then it will be saved.
 or just type:
@@ -86,17 +86,35 @@ Then it will ask the domain and password,just type what it asks.
 To change the value of an item,you can use `add` command and the value of
 specific item will be changed as your type in.
 
+To look at the password of a certain item,type as below:
+```
+get domain=google.com
+```
+or
+```
+get index=2
+```
+Note that if you set index and domain at same time,the domain will be
+ignored.The default variable to set is "domain".That is,command
+```
+get domain=google.com
+```
+is same as below:
+```
+get google.com
+```
+
 To look the item contained in db,you can just type this:
 ```
 list
 ```
 It will show the id and domain of all item that contained. Or type:
 ```
-list "google"
+list google
 ```
 or
 ```
-list domain="google"
+list domain=google
 ```
 Then will show the item that cotains specific domain.
 Note that it doesn't and won't support searching

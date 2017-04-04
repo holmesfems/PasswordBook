@@ -82,7 +82,7 @@ namespace StringTool
         return (unsigned char)(0xff);
     }
 
-    const char *strToBin(const std::string &str, int *length)
+    char *strToBin(const std::string &str, int *length)
     {
         const char *cstr = str.c_str();
         int maxi = str.length();
