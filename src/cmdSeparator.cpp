@@ -15,9 +15,9 @@
 #include "stringTool.h"
 namespace CmdSeparator
 {
-    const boost::filesystem::path generatorConfigFile("generator.conf");
-    const boost::filesystem::path DBPath(".pbook.db", "~/");
-    const boost::filesystem::path GlobalConfigFile(".pbook.conf", "~/");
+    const boost::filesystem::path generatorConfigFile(".generator.conf");
+    const boost::filesystem::path DBPath(".pbook.db");
+    const boost::filesystem::path GlobalConfigFile(".pbook.conf");
     const std::string space = " ";
     void CmdSeparateHelper::bind(const std::string &key, void *target, int8_t type)
     {
@@ -51,8 +51,17 @@ namespace CmdSeparator
     CmdSeparator::CmdSeparator()
     {
         initPG(generatorConfigFile);
+#ifdef DEBUG
+        std::cout << "pg created" << std::endl;
+#endif
         initPMDB(DBPath);
+#ifdef DEBUG
+        std::cout << "pm created" << std::endl;
+#endif
         initCmdDict();
+#ifdef DEBUG
+        std::cout << "cmdDict created" << std::endl;
+#endif
     }
     CmdSeparator::CmdSeparator(const std::string &dbpath)
     {
@@ -86,6 +95,7 @@ namespace CmdSeparator
         registCmd("exit", &CmdSeparator::_cmd_exit, "save and exit");
         registCmd("help", &CmdSeparator::_cmd_help, "show this help");
         registCmd("load", &CmdSeparator::_cmd_load_password, "load password (loadpass <domain>");
+        registCmd("list", &CmdSeparator::_cmd_list_item, "list items");
         _os = &(std::cout);
     }
 
@@ -99,10 +109,6 @@ namespace CmdSeparator
         }
 
         CmdSend tosend = _str_to_cmd(tcmd);
-#ifdef DEBUG
-        std::for_each(split.begin(), split.end(), [](std::string &v) { std::cout << v << ", "; });
-        std::cout << std::endl;
-#endif
         return dispatchCmd(tosend.first, tosend.second);
     }
 
@@ -182,7 +188,7 @@ namespace CmdSeparator
     {
         // required param: <dbname> <domain>
         // additonal input: <pwd0> <password>
-        if (param.size() <= 1) {
+        if (param.size() == 0) {
             //(*_os) << "error: need param <dbname> <domain> <pwd0> <pwdoutput>" <<
             // std::endl;
             (*_os) << "error: need param <domain>" << std::endl;
@@ -206,7 +212,7 @@ namespace CmdSeparator
             (*_os) << "Confirm again!" << std::endl;
             return -2;
         }
-        std::cout << "input your password for domain: " << domain << std::flush;
+        std::cout << "input your password for domain '" << domain << "': " << std::flush;
         std::string pwdoutput = ReadPassword<std::string>();
         auto encrypted_passwd = Crypto::encrypt(pwd0, pwdoutput);
         int status = _pwdManager->addPasswd(std::move(encrypted_passwd), domain);
@@ -247,6 +253,21 @@ namespace CmdSeparator
         return 2;
     }
 
+    int CmdSeparator::_cmd_list_item(Params &param)
+    {
+        std::string domain = "";
+        CmdSeparateHelper csh;
+        csh.bind("domain", &domain, CmdSeparateHelper::TEXT);
+        csh.bind("", &domain, CmdSeparateHelper::TEXT);
+        csh.set(param);
+        if (domain == "") {
+            _pwdManager->getDomainList();
+        } else {
+            _pwdManager->showIndexByDomain(domain);
+        }
+        return 3;
+    }
+
     CmdSend CmdSeparator::_str_to_cmd(const std::string &cmdstr)
     {
         std::string trimCmd = StringTool::strTrim(cmdstr);
@@ -263,9 +284,12 @@ namespace CmdSeparator
         std::string cmd;
         Params ret;
         for (i = 0; i < maxi; i++) {
+#ifdef DEBUG
+            std::cout << '\'' << data[i] << '\'' << std::endl;
+#endif
             if (data[i] == _escape) {
                 i += 1;
-                assert(i >= maxi);
+                assert(!(i >= maxi));
                 char *hexcode;
                 std::ostringstream oss2;
                 switch (data[i]) {
@@ -282,7 +306,7 @@ namespace CmdSeparator
                         oss << '\r';
                         break;
                     case 'x':
-                        assert(i + 2 >= maxi);
+                        assert(!(i + 2 >= maxi));
                         oss2 << data[i + 1] << data[i + 2];
                         hexcode = StringTool::strToBin(oss2.str());
                         oss << hexcode[0];
@@ -317,8 +341,8 @@ namespace CmdSeparator
                 continue;
             }
             if (data[i] == _equal) {
-                assert(first);
-                assert(i == maxi - 1);
+                assert(!first);
+                assert(!(i == maxi - 1));
                 if (!inEqual) {
                     key = oss.str();
                     oss.str("");
@@ -331,11 +355,19 @@ namespace CmdSeparator
             oss << data[i];
             // TODO
         }  // for
-        if (value != "" && oss.str() != "") {
+        if (first && oss.str() != "") {
+            cmd = oss.str();
+        } else if (value == "" && oss.str() != "") {
             value = oss.str();
             ParamItem item(key, value);
             ret.push_back(item);
         }
+#ifdef DEBUG
+        std::cout << cmd << ":" << std::endl;
+        for (auto item : ret) {
+            std::cout << item.first << "," << item.second << std::endl;
+        }
+#endif
         return CmdSend(cmd, ret);
     }
 }

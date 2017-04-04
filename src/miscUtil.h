@@ -27,16 +27,17 @@ void SetStdinEcho(bool enable = true);
 
 // class T should be iterable (has 'push_back()', 'begin()', 'end()')
 template <typename T>
-T ReadPassword(char stop = '\n')
+T ReadPassword(char stop = '\n', char show = '6')
 {
     SetStdinEcho(false);
     T input;
     char c = getchar();
     while (c != stop) {
         input.push_back(c);
+        if (show != 0) std::cout << show;
         c = getchar();
-        std::cout << "**";
     }
+    std::cout << std::endl;
     SetStdinEcho(true);
 #ifdef DEBUG
     std::cout << std::endl << "you have input: ";

@@ -59,6 +59,7 @@ namespace PasswordManager
 
     int32_t PasswordManager_SQLite3::openDB(const std::string &filename)
     {
+        //(*_os) << filename << std::endl;
         int32_t err = sqlite3_open(filename.c_str(), &_conn);
         if (err != SQLITE_OK) {
             (*_os) << "An error occured while open database file: " << filename
@@ -71,8 +72,8 @@ namespace PasswordManager
     int32_t PasswordManager_SQLite3::showIndexByDomain(const std::string &domain)
     {
         std::ostringstream sql;
-        sql << "SELECT " << COLUMN[0].name << "," << COLUMN[1].name << "FROM " << TABLENAME
-            << " WHERE " << COLUMN[1].name << R"( LIKE '%)" << domain << R"(%')";
+        sql << "SELECT " << COLUMN[0].name << "," << COLUMN[1].name << " FROM " << TABLENAME
+            << " WHERE " << COLUMN[1].name << R"( LIKE '%)" << domain << R"(%';)";
         sqlite3_stmt *pstmt;
         int32_t rc;
         rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
@@ -185,7 +186,8 @@ namespace PasswordManager
     std::vector<std::string> PasswordManager_SQLite3::getDomainList()
     {
         std::ostringstream sql;
-        sql << "SELECT " << COLUMN[1].name << "FROM " << TABLENAME << ";";
+        sql << "SELECT " << COLUMN[0].name << " , " << COLUMN[1].name << " FROM " << TABLENAME
+            << ";";
         sqlite3_stmt *pstmt;
         int32_t rc;
         rc = sqlite3_prepare(_conn, sql.str().c_str(), -1, &pstmt, NULL);
@@ -194,14 +196,17 @@ namespace PasswordManager
             return {};
         }
         std::vector<std::string> newdomainList;
+        std::vector<int32_t> newidlist;
         while ((rc = sqlite3_step(pstmt)) == SQLITE_ROW) {
-            newdomainList.push_back((const char *)(sqlite3_column_text(pstmt, 0)));
+            newdomainList.push_back((const char *)(sqlite3_column_text(pstmt, 1)));
+            newidlist.push_back(sqlite3_column_int(pstmt, 0));
         }
         if (newdomainList.size() > 0) {
             (*_os) << "Hit " << newdomainList.size() << " items:" << std::endl;
             size_t i;
+            (*_os) << COLUMN[0].name << "\t" << COLUMN[1].name << std::endl;
             for (i = 0; i < newdomainList.size(); i++) {
-                (*_os) << newdomainList[i] << std::endl;
+                (*_os) << newidlist[i] << "\t" << newdomainList[i] << std::endl;
             }
         } else {
             (*_os) << "Hit no item" << std::endl;

@@ -13,6 +13,10 @@
 
 int main()
 {
+#ifdef DEBUG
+    std::cout << "DEBUGGING MODE ACTIVATED" << std::endl;
+    std::cout.flush();
+#endif
     std::string cmd;
     using_history();
     read_history(NULL);
