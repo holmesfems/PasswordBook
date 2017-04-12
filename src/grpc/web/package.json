@@ -1,0 +1,22 @@
+{
+	"name": "password_service",
+	"version": "0.0.1",
+	"description": "PasswordBook Web service",
+	"author": "Jerry Jia <jerryjiahaha@gmail.com>",
+	"license": "MIT",
+	"dependencies": {
+		"grpc": "^1.0.0",
+
+		"koa": "^2.2.0",
+		"koa-ejs": "^4.0.0",
+		"koa-logger": "^2.0.1",
+		"koa-router": "^7.1.1",
+		"koa-static": "^3.0.0",
+		"koa-mount": "^3.0.0",
+
+		"vue": "^2.2.6",
+
+		"webpack": "^2.3.3",
+		"webpack-manifest-plugin": "^1.1.0"
+	}
+}
