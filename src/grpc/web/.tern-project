@@ -9,5 +9,5 @@
 		"ecma7",
 		"browser"
 	],
-	"ecmaVersion": 7
+	"ecmaVersion": 2017
 }
