@@ -1,6 +1,11 @@
 add_library ( pbook.crypto
 	crypto.cpp
 	)
+
+if (NOT USE_SYSTEM_BOTAN)
+	add_dependencies(pbook.crypto botan)
+endif ()
+
 include_directories ( pbook.crypto ${BOTAN_INCLUDE_DIRS} )
 target_link_libraries ( pbook.crypto ${BOTAN_LIBRARIES} )
 

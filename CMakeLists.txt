@@ -32,16 +32,18 @@ if (USE_SYSTEM_BOTAN)
 else ()
 	# TODO check python
 	include (ExternalProject)
+	set(BOTAN_INSTALL_DIR "${PROJECT_BINARY_DIR}/third_party")
 	ExternalProject_Add (botan
-		PREFIX "${PROJECT_BINARY_DIR}/third_party"
+		PREFIX ${BOTAN_INSTALL_DIR}
 		GIT_REPOSITORY "https://github.com/randombit/botan.git"
 		GIT_TAG "2.0.1"
 		UPDATE_COMMAND ""
 		SOURCE_DIR "${PROJECT_SOURCE_DIR}/third_party/botan"
 		CONFIGURE_COMMAND ${PROJECT_SOURCE_DIR}/third_party/botan/configure.py --prefix=${PROJECT_BINARY_DIR}/third_party
 		)
-	set (BOTAN_INCLUDE_DIRS "${PROJECT_BINARY_DIR}/third_party/include/botan-2")
-	set (BOTAN_LIBRARIES_DIRS "${PROJECT_BINARY_DIR}/third_party/lib/libbotan-2.a") # statically link
+	message("botan install dir: ${BOTAN_INSTALL_DIR}")
+	set (BOTAN_INCLUDE_DIRS "${BOTAN_INSTALL_DIR}/include/botan-2")
+	set (BOTAN_LIBRARIES "${BOTAN_INSTALL_DIR}/lib/libbotan-2.a") # statically link
 endif (USE_SYSTEM_BOTAN)
 pkg_check_modules (SQLITE3 REQUIRED sqlite3>=3.8.7)
 
