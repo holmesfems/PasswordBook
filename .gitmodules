@@ -1,3 +1,6 @@
 [submodule "third_party/botan"]
 	path = third_party/botan
 	url = https://github.com/randombit/botan.git
+[submodule "third_party/grpc"]
+	path = third_party/grpc
+	url = https://github.com/google/grpc.git

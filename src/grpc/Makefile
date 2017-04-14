@@ -18,7 +18,7 @@ LDFLAGS += $(_PM_LIBS)
 all: libpbook.libs.a password_service
 
 libpbook.libs.a:
-	cd ../../ && mkdir -p build && cd build && cmake .. && $(MAKE)
+	cd ../../ && mkdir -p build && cd build && cmake -DBUILD_WEB_SERVICE=OFF .. && $(MAKE)
 
 password_service: password_service.pb.o password_service.grpc.pb.o password_service.o
 	$(CXX) $^ $(LDFLAGS) -o $@

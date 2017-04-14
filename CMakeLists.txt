@@ -17,6 +17,8 @@ else()
 	message(FATAL "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
+option (BUILD_WEB_SERVICE "also build web service" ON)
+
 ## Check dependency
 # TODO https://cmake.org/Wiki/CMake:How_To_Find_Libraries
 find_package(PkgConfig)
@@ -26,6 +28,7 @@ find_library ( LIB_READLINE
 find_package ( Boost
 	COMPONENTS filesystem system
 	)
+
 option (USE_SYSTEM_BOTAN "use system installed botan" ON)
 if (USE_SYSTEM_BOTAN)
 	pkg_check_modules (BOTAN REQUIRED botan-2>=2.0.1)
@@ -39,12 +42,58 @@ else ()
 		GIT_TAG "2.0.1"
 		UPDATE_COMMAND ""
 		SOURCE_DIR "${PROJECT_SOURCE_DIR}/third_party/botan"
-		CONFIGURE_COMMAND ${PROJECT_SOURCE_DIR}/third_party/botan/configure.py --prefix=${PROJECT_BINARY_DIR}/third_party
+		CONFIGURE_COMMAND ${PROJECT_SOURCE_DIR}/third_party/botan/configure.py --prefix=${BOTAN_INSTALL_DIR}
 		)
 	message("botan install dir: ${BOTAN_INSTALL_DIR}")
+	#XXX maybe I should set PKG_CONFIG_PATH then use pkg_check_module
 	set (BOTAN_INCLUDE_DIRS "${BOTAN_INSTALL_DIR}/include/botan-2")
 	set (BOTAN_LIBRARIES "${BOTAN_INSTALL_DIR}/lib/libbotan-2.a") # statically link
 endif (USE_SYSTEM_BOTAN)
+
+if (BUILD_WEB_SERVICE)
+option (USE_SYSTEM_GRPC "use system installed grpc(with protobuf)" OFF)
+if (USE_SYSTEM_GRPC)
+	# XXX grpc depends on specific protobuf api, so wo restrict the version to avoid compilation error
+	pkg_check_modules (GRPC REQUIRED grpc=1.4.0-dev)
+	pkg_check_modules (PROTOBUF REQUIRED protobuf=3.2.0)
+else ()
+	# TODO check `make` command
+	# TODO split grpc and protobuf dependency
+	include (ExternalProject)
+	set(GRPC_INSTALL_DIR "${PROJECT_BINARY_DIR}/third_party")
+	set(GRPC_MAKE_ARGS -C ${PROJECT_SOURCE_DIR}/third_party/grpc \\
+		 -e prefix=${GRPC_INSTALL_DIR} \\
+		# BINARY_DIR "${GRPC_INSTALL_DIR}/src/grpc-build"
+	       	 -e BUILDDIR=${GRPC_INSTALL_DIR}/src/grpc-build \\
+		 -e HAS_SYSTEM_PROTOBUF=false \\
+		 -e HAS_VALID_PROTOC=false \\
+		 PROTOBUF_CONFIG_OPTS='--prefix=${GRPC_INSTALL_DIR}'
+		 )
+	ExternalProject_Add (grpc
+		PREFIX ${GRPC_INSTALL_DIR}
+		GIT_REPOSITORY "https://github.com/grpc/grpc.git"
+		GIT_TAG "90bb7bddd138bac7126b01bfcb31fa9beff7d2fb"
+		# XXX when I defined GIT_TAG, GIT_SUBMODULES will not work...
+		UPDATE_COMMAND git submodule init && git submodule update && git submodule sync
+		SOURCE_DIR "${PROJECT_SOURCE_DIR}/third_party/grpc"
+		CONFIGURE_COMMAND ""
+		# BINARY_DIR "${GRPC_INSTALL_DIR}/src/grpc-build"
+		BUILD_COMMAND make ${GRPC_MAKE_ARGS}
+		INSTALL_COMMAND make ${GRPC_MAKE_ARGS} install
+		COMMAND make -C ${PROJECT_SOURCE_DIR}/third_party/grpc/third_party/protobuf install
+		# FIXME seems not work, I want to update PKG_CONFIG_PATH...
+		COMMAND export PKG_CONFIG_PATH=${GRPC_INSTALL_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}
+		COMMAND export PATH=${GRPC_INSTALL_DIR}/bin:$ENV{PATH}
+		)
+	# XXX How to update PKG_CONFIG_PATH...
+	message("grpc install dir: ${GRPC_INSTALL_DIR}")
+	set (GRPC_INCLUDE_DIRS "${GRPC_INSTALL_DIR}/include")
+	set (GRPC_LIBRARIES ${GRPC_INSTALL_DIR}/lib/libgrpc++.a ${GRPC_INSTALL_DIR}/lib/libgrpc.a -lz -lcares -lssl -ldl -lcrypto)
+	set (PROTOBUF_INCLUDE_DIRS "${GRPC_INSTALL_DIR}/include")
+	set (PROTOBUF_LIBRARIES ${GRPC_INSTALL_DIR}/lib/libprotobuf.a -pthread -lpthread -lz)
+endif (USE_SYSTEM_GRPC)
+endif (BUILD_WEB_SERVICE)
+
 pkg_check_modules (SQLITE3 REQUIRED sqlite3>=3.8.7)
 
 ## Set Compilation Database for YouCompleteMe

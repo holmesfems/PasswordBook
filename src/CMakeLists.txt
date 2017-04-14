@@ -47,3 +47,7 @@ install ( TARGETS pbook.crypto pbook.db
 	LIBRARY DESTINATION  lib
 	ARCHIVE DESTINATION  lib
 	)
+
+if (BUILD_WEB_SERVICE)
+	add_subdirectory (grpc)
+endif ()
