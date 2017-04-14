@@ -5,11 +5,7 @@ add_executable ( password_service
 if (NOT USE_SYSTEM_GRPC)
 	add_dependencies(password_service grpc)
 	set (GRPC_CPP_PLUGIN ${GRPC_INSTALL_DIR}/bin/grpc_cpp_plugin)
-	# XXX very ugly method to find protoc, grpc_cpp_plugin
-	find_program(PROTOBUF_EXE
-		protoc
-		HINTS ${GRPC_INSTALL_DIR}/bin ENV PATH
-		)
+	set (PROTOBUF_EXE ${GRPC_INSTALL_DIR}/bin/protoc)
 else ()
 	include (FindProtobuf)
 	if (PROTOBUF_FOUND)
